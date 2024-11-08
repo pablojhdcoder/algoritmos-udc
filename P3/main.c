@@ -71,8 +71,12 @@ double medirTiempo(item sinonimos[],tabla_cerrada *diccionario,
 int main(void) {
     item sinonimos[MAX_CLAVES];
     srand(time(NULL));
+    int cantidad = leer_sinonimos(sinonimos);
+    if (cantidad != MAX_CLAVES) {
+        printf("Error al leer el archivo de sinónimos.\n");
+        return EXIT_FAILURE;
+    }
     test();
-    leer_sinonimos(sinonimos);
     imprimirTablas(sinonimos);
     return 0;
 }
@@ -122,6 +126,7 @@ unsigned int resol_doble_test(int pos_ini, int num_intento) {
     return num_intento * (5 - (pos_ini % 5));
 }
 
+//Esta función devuelve el numero de claves leidas
 int leer_sinonimos(item datos[]) {
     char c;
     int i, j;
@@ -156,7 +161,7 @@ void inicializar_cerrada(tabla_cerrada *diccionario, int tam) {
         return;
     }
 
-    for (i = 0; i < tam; i++) {         //
+    for (i = 0; i < tam; i++) {
         (*diccionario)[i].ocupada = 0;
         (*diccionario)[i].data.clave[0] = '\0';
         (*diccionario)[i].data.sinonimos[0] = '\0';
@@ -282,10 +287,10 @@ void test () {
 // Función para imprimir el encabezado de las tablas
 void imprimirEncabezado(const char *nombreDispersion, const char *tipoResolucion, int numSinonimos, int numColisiones, Cotas *cotas) {
     // Imprime el título con el nombre de la función y el tipo de resolución
-    printf("***Dispersion cerrada %s con %s\n"
+    printf("\n***Dispersion cerrada %s con %s\n"
                 "Insertando %d elementos... Numero total de colisiones: %d\n"
                 "Buscando n elementos...\n",nombreDispersion, tipoResolucion, numSinonimos, numColisiones);    // Encabezado de la tabla
-    printf("\n%14s%15s%19s%s%20s%s%20s%s\n",
+    printf("\n%13s%16s%17s%s%21s%s%20s%s\n",
     "n",
     "t(n)",
     "t(n)/", cotas->strCotaSubestimada,
@@ -309,10 +314,9 @@ double medirTiempo(item sinonimos[],tabla_cerrada *diccionario,
 
     double t1, t2, t, tTotal,tInicializacion;
     int i, j, k = 1000, indice, colisiones = 0 ;                       //Error: En vez de poner el tamaño máximo que voy a tratar es mejor poner n
-
     t1 = microsegundos();           // Mide el tiempo total (inicialización + ejecución)
     for (i = 0; i < n; i++) {
-        indice = rand() % N;
+        indice = rand() % MAX_CLAVES;
         buscar_cerrada(sinonimos[indice].clave, *diccionario, N, &colisiones, dispersion, resol_colisiones);
     }
     t2 = microsegundos();
@@ -320,7 +324,7 @@ double medirTiempo(item sinonimos[],tabla_cerrada *diccionario,
 
     t1 = microsegundos();           // Mide solo el tiempo de la inicialización
     for (i = 0; i < n; i++) {
-        indice = rand() % N;
+        indice = rand() % MAX_CLAVES;
     }
     t2 = microsegundos();
     tInicializacion = t2 - t1;
@@ -332,7 +336,7 @@ double medirTiempo(item sinonimos[],tabla_cerrada *diccionario,
         t1 = microsegundos();           // Mide el tiempo total (inicialización + ejecución)
         for (i = 0; i < k; i++) {
             for (j = 0; j < n; j++) {
-                indice = rand() % N;
+                indice = rand() % MAX_CLAVES;
                 buscar_cerrada(sinonimos[indice].clave, *diccionario, N, &colisiones, dispersion, resol_colisiones);
             }
         }
@@ -342,7 +346,7 @@ double medirTiempo(item sinonimos[],tabla_cerrada *diccionario,
         t1 = microsegundos();           // Mide solo el tiempo de la inicialización
         for (i = 0; i < k; i++) {
             for (j = 0; j < n; j++) {
-                indice = rand() % N;
+                indice = rand() % MAX_CLAVES;
             }
         }
         t2 = microsegundos();
@@ -374,7 +378,7 @@ void imprimirFila(int n, double t, double x, double y, double z, bool promedio) 
     } else {
         printf(" ");    //Marca si no se hizo un promedio, para mantener la alineación
     }
-    printf("%12d%17.4f%20.6f%25.7f%25.7f\n", n, t, x, y, z);
+    printf("%12d%17.4f%20.6f%25.6f%25.6f\n", n, t, x, y, z);
 }
 
 //Imprime los tiempos de ejecución de la función dada
@@ -382,16 +386,14 @@ void imprimirTiempos(item sinonimos[MAX_CLAVES],
                     unsigned int(*dispersion)(char*, int),
                     unsigned int(*resol_colisiones)(int pos_ini, int num_intento),
                     const char *nombreDispersion, const char *tipoResolucion, Cotas *cotas) {
-
     int i, colisiones = 0;
     double t, x, y, z;
     bool promedio;
     tabla_cerrada diccionario;
     inicializar_cerrada(&diccionario,N);
-    for (i = 0; i < N; i++) {
+    for (i = 0; i < MAX_CLAVES; i++) {
         colisiones += insertar_cerrada(sinonimos[i].clave,sinonimos[i].sinonimos,&diccionario,N,dispersion,resol_colisiones);
     }
-
     imprimirEncabezado(nombreDispersion, tipoResolucion,N,colisiones,cotas);
 
     for (i = 125; i <= 16000; i *= 2) {
@@ -413,28 +415,28 @@ void imprimirTablas(item sinonimos[MAX_CLAVES]){
     Cotas cotas;
 
     // Pruebas con dispersión cerrada lineal y diferentes cotas para dispersionA
-    cotas = (Cotas){0.8, 1, 1, "n^0.8", "n^1", "n^log(n)"};
+    cotas = (Cotas){0.8, 1, 1.2, "n^0.8", "n^1", "n^1.2"};
     imprimirTiempos(sinonimos,dispersionA, resol_lineal, "lineal", "dispersión A", &cotas);
 
     // Pruebas con dispersión cerrada lineal y diferentes cotas para dispersionB
-    cotas = (Cotas){0.8, 1, 1, "n^0.8", "n^1", "n^log(n)"};
+    cotas = (Cotas){0.8, 1, 1.2, "n^0.8", "n^1", "n^1.2"};
     imprimirTiempos(sinonimos,dispersionB, resol_lineal, "lineal", "dispersión B", &cotas);
 
     // Pruebas con dispersión cerrada cuadrática y diferentes cotas para dispersionA
-    cotas = (Cotas){0.8, 1, 1, "n^0.8", "n^1", "n^log(n)"};
+    cotas = (Cotas){0.8, 1, 1.2, "n^0.8", "n^1", "n^1.2"};
     imprimirTiempos(sinonimos,dispersionA, resol_cuadratica, "cuadrática", "dispersión A", &cotas);
 
 
     // Pruebas con dispersión cerrada cuadrática y diferentes cotas para dispersionB
-    cotas = (Cotas){0.8, 1, 1, "n^0.8", "n^1", "n^log(n)"};
+    cotas = (Cotas){0.8, 1, 1.2, "n^0.8", "n^1", "n^1.2"};
     imprimirTiempos(sinonimos,dispersionB, resol_cuadratica, "cuadrática", "dispersión B", &cotas);
 
     // Pruebas con resolución doble y diferentes cotas para dispersionA
-    cotas = (Cotas){0.8, 1, 1, "n^0.8", "n^1", "n^log(n)"};
+    cotas = (Cotas){0.8, 1, 1.2, "n^0.8", "n^1", "n^1.2"};
     imprimirTiempos(sinonimos,dispersionA, resol_doble, "doble", "dispersión A", &cotas);
 
     // Pruebas con resolución doble y diferentes cotas para dispersionB
-    cotas = (Cotas){0.8, 1, 1, "n^0.8", "n^1", "n^log(n)"};
+    cotas = (Cotas){0.8, 1, 1.2, "n^0.8", "n^1", "n^1.2"};
     imprimirTiempos(sinonimos,dispersionB, resol_doble, "doble", "dispersión B", &cotas);
 
 }//Comprobar empíricamente la complejidad O(n) del algoritmo que se utiliza para buscar
