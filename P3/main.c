@@ -290,7 +290,7 @@ void imprimirEncabezado(const char *nombreDispersion, const char *tipoResolucion
     printf("\n***Dispersion cerrada %s con %s\n"
                 "Insertando %d elementos... Numero total de colisiones: %d\n"
                 "Buscando n elementos...\n",nombreDispersion, tipoResolucion, numSinonimos, numColisiones);    // Encabezado de la tabla
-    printf("\n%13s%16s%17s%s%21s%s%20s%s\n",
+    printf("\n%13s%16s%17s%s%19s%s%16s%s\n",
     "n",
     "t(n)",
     "t(n)/", cotas->strCotaSubestimada,
@@ -368,7 +368,7 @@ double cotaAjustada(int n, Cotas *cotas) {
 }
 
 double cotaSobreestimada(int n, Cotas *cotas) {
-    return pow(n,cotas->cotaSobreestimada);
+    return pow(n,cotas->cotaSobreestimada) * log2(n);
 }
 
 // Función para imprimir una fila de la tabla
@@ -415,28 +415,28 @@ void imprimirTablas(item sinonimos[MAX_CLAVES]){
     Cotas cotas;
 
     // Pruebas con dispersión cerrada lineal y diferentes cotas para dispersionA
-    cotas = (Cotas){0.8, 1, 1.2, "n^0.8", "n^1", "n^1.2"};
+    cotas = (Cotas){0.81, 1.01, 1.01, "n^0.81", "n^1.01", "n^1.01*log(n)"};
     imprimirTiempos(sinonimos,dispersionA, resol_lineal, "lineal", "dispersión A", &cotas);
 
     // Pruebas con dispersión cerrada lineal y diferentes cotas para dispersionB
-    cotas = (Cotas){0.8, 1, 1.2, "n^0.8", "n^1", "n^1.2"};
+    cotas = (Cotas){0.85, 1.05, 1.05, "n^0.85", "n^1.05", "n^1.05*log(n)"};
     imprimirTiempos(sinonimos,dispersionB, resol_lineal, "lineal", "dispersión B", &cotas);
 
     // Pruebas con dispersión cerrada cuadrática y diferentes cotas para dispersionA
-    cotas = (Cotas){0.8, 1, 1.2, "n^0.8", "n^1", "n^1.2"};
+    cotas = (Cotas){0.81, 1.01, 1.01, "n^0.81", "n^1.01", "n^1.01*log(n)"};
     imprimirTiempos(sinonimos,dispersionA, resol_cuadratica, "cuadrática", "dispersión A", &cotas);
 
 
     // Pruebas con dispersión cerrada cuadrática y diferentes cotas para dispersionB
-    cotas = (Cotas){0.8, 1, 1.2, "n^0.8", "n^1", "n^1.2"};
+    cotas = (Cotas){0.83, 1.03, 1.03, "n^0.83", "n^1.03", "n^1.03*log(n)"};
     imprimirTiempos(sinonimos,dispersionB, resol_cuadratica, "cuadrática", "dispersión B", &cotas);
 
     // Pruebas con resolución doble y diferentes cotas para dispersionA
-    cotas = (Cotas){0.8, 1, 1.2, "n^0.8", "n^1", "n^1.2"};
+    cotas = (Cotas){0.81, 1.01, 1.01, "n^0.81", "n^1.01", "n^1.01*log(n)"};
     imprimirTiempos(sinonimos,dispersionA, resol_doble, "doble", "dispersión A", &cotas);
 
     // Pruebas con resolución doble y diferentes cotas para dispersionB
-    cotas = (Cotas){0.8, 1, 1.2, "n^0.8", "n^1", "n^1.2"};
+    cotas = (Cotas){0.82, 1.02, 1.02, "n^0.82", "n^1.02", "n^1.02*log(n)"};
     imprimirTiempos(sinonimos,dispersionB, resol_doble, "doble", "dispersión B", &cotas);
 
 }//Comprobar empíricamente la complejidad O(n) del algoritmo que se utiliza para buscar
