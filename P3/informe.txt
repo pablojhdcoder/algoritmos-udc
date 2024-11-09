@@ -17,9 +17,8 @@ Diccionario de datos
 
 En esta práctica se implementa un programa de consulta de sinónimos usando un archivo de 19,062 entradas (sinonimos.txt). 
 El objetivo es comparar la eficiencia de distintas implementaciones de diccionarios de datos en términos de colisiones y tiempos de búsqueda. 
-Para ello, se usan tres métodos de resolución de colisiones en tablas de dispersión cerradas: exploración lineal, exploración cuadrática y doble dispersión. 
-Cada implementación se prueba con dos funciones de dispersión diferentes, midiendo el número de colisiones al insertar y evaluando la eficiencia de búsqueda 
-para analizar la complejidad empírica del programa.
+Para ello, se usan tres métodos de manejo de colisiones en tablas de dispersión cerradas: exploración lineal, exploración cuadrática y doble dispersión. 
+Además, cada implementación de diccionario de datos se prueba con dos funciones de dispersión diferentes, para medir el número total de colisiones al insertar todos los datos de sinonimos.txt y calcular empíricamente la complejidad computacional de la búsqueda de n elementos.
 
 ****MAQUINA*******
 ------------------
@@ -118,7 +117,7 @@ No encuentro: CARLOS, colisiones: 5
 ------------------
 
 ***Dispersion cerrada lineal con dispersión A
-Insertando 38197 elementos... Numero total de colisiones: 172623183
+Insertando 19062 elementos... Numero total de colisiones: 172623183
 Buscando n elementos...
 
             n            t(n)           t(n)/n^0.81              t(n)/n^1.01            t(n)/n^1.01*log(n)
@@ -131,12 +130,12 @@ Buscando n elementos...
          8000      530448.0000          365.712603                60.606880                 4.674371
         16000     1050605.0000          413.144787                59.604395                 4.267887
 
-n^0.80 es la cota subestimada
-n^1.00 es la cota ajustada y la Cte = 60.779
-n^log(n) es la cota sobreestimada
+n^0.81 es la cota subestimada
+n^1.01 es la cota ajustada y la Cte = 61
+n^1.01*log(n) es la cota sobreestimada
 
 ***Dispersion cerrada lineal con dispersión B
-Insertando 38197 elementos... Numero total de colisiones: 16965
+Insertando 19062 elementos... Numero total de colisiones: 16965
 Buscando n elementos...
 
             n            t(n)            t(n)/n^0.85              t(n)/n^1.05           t(n)/n^1.05*log(n)
@@ -151,11 +150,11 @@ Buscando n elementos...
 
 
 n^0.85 es la cota subestimada
-n^1.05 es la cota ajustada y la Cte = 0.111
+n^1.05 es la cota ajustada y la Cte = 0.11
 n^n^1.05*log(n) es la cota sobreestimada
 
 ***Dispersion cerrada cuadrática con dispersión A
-Insertando 38197 elementos... Numero total de colisiones: 2106581
+Insertando 19062 elementos... Numero total de colisiones: 2106581
 Buscando n elementos...
 
             n            t(n)            t(n)/n^0.81              t(n)/n^1.01           t(n)/n^1.01*log(n)
@@ -169,11 +168,11 @@ Buscando n elementos...
         16000       20446.0000            8.040280                 1.159971                 0.083058
 
 n^0.81 es la cota subestimada
-n^01.01 es la cota ajustada y la Cte = 1.209
+n^01.01 es la cota ajustada y la Cte = 1.2
 n^1.01*log(n) es la cota sobreestimada
 
 ***Dispersion cerrada cuadrática con dispersión B
-Insertando 38197 elementos... Numero total de colisiones: 13366
+Insertando 19062 elementos... Numero total de colisiones: 13366
 Buscando n elementos...
 
             n            t(n)            t(n)/n^0.83              t(n)/n^1.03            t(n)/n^1.03*log(n)
@@ -191,7 +190,7 @@ n^1.03*log(n) es la cota ajustada y la Cte = 0.125
 n^1.03*log(n) es la cota sobreestimada
 
 ***Dispersion cerrada doble con dispersión A
-Insertando 38197 elementos... Numero total de colisiones: 1451531
+Insertando 19062 elementos... Numero total de colisiones: 1451531
 Buscando n elementos...
 
             n            t(n)            t(n)/n^0.81              t(n)/n^1.01           t(n)/n^1.01*log(n)
@@ -205,11 +204,11 @@ Buscando n elementos...
         16000       20188.0000            7.938823                 1.145334                 0.082010
 
 n^0.81 es la cota subestimada
-n^01.01 es la cota ajustada y la Cte = 1.232
+n^01.01 es la cota ajustada y la Cte = 1.25
 n^1.01*log(n) es la cota sobreestimada
 
 ***Dispersion cerrada doble con dispersión B
-Insertando 38197 elementos... Numero total de colisiones: 19401
+Insertando 19062 elementos... Numero total de colisiones: 19401
 Buscando n elementos...
 
             n            t(n)            t(n)/n^0.82              t(n)/n^1.02            t(n)/n^1.02*log(n)
@@ -224,7 +223,7 @@ Buscando n elementos...
 
 
 n^0.82 es la cota subestimada
-n^1.02 es la cota ajustada y la Cte = 0.152
+n^1.02 es la cota ajustada y la Cte = 0.17
 n^1.02*log(n) es la cota sobreestimada
 
 
