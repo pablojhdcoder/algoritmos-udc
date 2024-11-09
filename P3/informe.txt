@@ -245,7 +245,7 @@ Comparación entre diccionarios de datos: En diccionarios pequeños, el rendimie
 Sin embargo, a medida que el tamaño del diccionario crece, el número de colisiones aumenta, lo que provoca un crecimiento en los tiempos de búsqueda. 
 A pesar de esto, al realizar múltiples pruebas, el rendimiento tiende a estabilizarse, lo que indica una cierta consistencia en el comportamiento del algoritmo.
 
-Conclusión general: El algoritmo se comporta de acuerdo con la teoría de tablas de hash cerradas, pero el rendimiento depende en gran medida de la calidad de
+Conclusión general: El algoritmo se comporta de acuerdo con la teoría, pero el rendimiento depende en gran medida de la calidad de
 la función de dispersión utilizada. En general, el algoritmo es eficiente para diccionarios pequeños, pero su rendimiento puede empeora a medida que va creciendo el tamaño de
 los diccionarios.
 
