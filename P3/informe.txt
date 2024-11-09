@@ -233,7 +233,7 @@ n^1.02*log(n) es la cota sobreestimada
 
 A partir de los datos obtenidos y los tiempos de ejecución medidos, podemos concluir lo siguiente:
 
-Crecimiento de los tiempos de búsqueda: Los tiempos de búsqueda aumentan conforme crece el tamaño del diccionario (n), lo cual es esperado. 
+Crecimiento de los tiempos de búsqueda: Los tiempos de búsqueda aumentan conforme crece el tamaño de búsquedas (n), lo cual es esperado. 
 Sin embargo, el crecimiento no es completamente lineal, lo que indica que el algoritmo no sigue una complejidad O(n) exacta en todos los casos. 
 Este comportamiento sugiere que existen otros factores que influyen en el rendimiento, como la dispersión de las claves y las colisiones.
 
@@ -241,13 +241,9 @@ Impacto de la dispersión: Las funciones de dispersión tipo B producen menos co
 En cambio, cuando la dispersión no es óptima (como en el caso de la dispersión A), el número de colisiones aumenta considerablemente, 
 lo que degrada el rendimiento y aumenta los tiempos de busqueda.
 
-Comparación entre diccionarios de datos: En diccionarios pequeños, el rendimiento es generalmente bueno, con pocas colisiones. 
-Sin embargo, a medida que el tamaño del diccionario crece, el número de colisiones aumenta, lo que provoca un crecimiento en los tiempos de búsqueda. 
-A pesar de esto, al realizar múltiples pruebas, el rendimiento tiende a estabilizarse, lo que indica una cierta consistencia en el comportamiento del algoritmo.
+Comparación entre diccionarios de datos: La exploración doble y cuadrática tendieron a producir menos colisiones que la exploración lineal, lo que resultó en tiempos de búsqueda más eficientes. Por otro lado, cabe resaltar que estas diferencias entre las distintas implementaciones de diccionarios de datos, son más perceptibles en los tiempos de la dispersión A ya que al estar menos optimizada que la B los tiempos y números de colisiones varían más entre los diccionarios ya nombrados. En cambio, en la B no se aprecian tanto las diferencias entre diccionarios ya que la dispersión esta lo suficientemente optimizada.
 
-Conclusión general: El algoritmo se comporta de acuerdo con la teoría, pero el rendimiento depende en gran medida de la calidad de
-la función de dispersión utilizada. En general, el algoritmo es eficiente para diccionarios pequeños, pero su rendimiento puede empeora a medida que va creciendo el tamaño de
-los diccionarios.
+Conclusión general: El algoritmo se comporta de acuerdo con la teoría, ya que el rendimiento depende en gran medida de la calidad de la función de dispersión utilizada y, en general, si se tiene una función de dispersión lo suficientemente optimizada no será necesario tener en cuenta sobre que implementación de diccionario estemos trabajando, ya que se obtendrá un buen rendimiento en la mayoría de ellos.
 
 Anomalias: Durante las pruebas, se observaron algunos resultados anómalos en los tiempos de ejecución, particularmente en las tablas de dispersión cerrada con dispersión B.
 Estos valores atípicos podrían ser producto de factores como la interferencia de otros procesos del sistema durante la ejecución. Sin embargo, tras realizar múltiples
