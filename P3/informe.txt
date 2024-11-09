@@ -242,7 +242,8 @@ En cambio, cuando la dispersión no es óptima (como en el caso de la dispersió
 lo que degrada el rendimiento y aumenta los tiempos de busqueda.
 
 Comparación entre diccionarios de datos: La exploración doble y cuadrática tendieron a producir menos colisiones que la exploración lineal, lo que resultó en tiempos de búsqueda más eficientes. 
-Por otro lado, cabe resaltar que estas diferencias entre las distintas implementaciones de diccionarios de datos, son más perceptibles en los tiempos de la dispersión A ya que al estar menos optimizada que la B los tiempos y números de colisiones varían más entre los diccionarios ya nombrados. 
+Por otro lado, cabe resaltar que estas diferencias entre las distintas implementaciones de diccionarios de datos, son más perceptibles en los tiempos de la dispersión A, 
+ya que al estar menos optimizada que la B, los tiempos y números de colisiones varían más entre los diccionarios ya nombrados. 
 En cambio, en la B no se aprecian tanto las diferencias entre diccionarios ya que la dispersión esta lo suficientemente optimizada.
 
 Conclusión general: El algoritmo se comporta de acuerdo con la teoría, ya que el rendimiento depende en gran medida de la calidad de la función de dispersión utilizada y, en general,
