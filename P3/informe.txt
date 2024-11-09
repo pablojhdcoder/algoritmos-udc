@@ -241,9 +241,13 @@ Impacto de la dispersión: Las funciones de dispersión tipo B producen menos co
 En cambio, cuando la dispersión no es óptima (como en el caso de la dispersión A), el número de colisiones aumenta considerablemente, 
 lo que degrada el rendimiento y aumenta los tiempos de busqueda.
 
-Comparación entre diccionarios de datos: La exploración doble y cuadrática tendieron a producir menos colisiones que la exploración lineal, lo que resultó en tiempos de búsqueda más eficientes. Por otro lado, cabe resaltar que estas diferencias entre las distintas implementaciones de diccionarios de datos, son más perceptibles en los tiempos de la dispersión A ya que al estar menos optimizada que la B los tiempos y números de colisiones varían más entre los diccionarios ya nombrados. En cambio, en la B no se aprecian tanto las diferencias entre diccionarios ya que la dispersión esta lo suficientemente optimizada.
+Comparación entre diccionarios de datos: La exploración doble y cuadrática tendieron a producir menos colisiones que la exploración lineal, lo que resultó en tiempos de búsqueda más eficientes. 
+Por otro lado, cabe resaltar que estas diferencias entre las distintas implementaciones de diccionarios de datos, son más perceptibles en los tiempos de la dispersión A ya que al estar menos optimizada que la B los tiempos y números de colisiones varían más entre los diccionarios ya nombrados. 
+En cambio, en la B no se aprecian tanto las diferencias entre diccionarios ya que la dispersión esta lo suficientemente optimizada.
 
-Conclusión general: El algoritmo se comporta de acuerdo con la teoría, ya que el rendimiento depende en gran medida de la calidad de la función de dispersión utilizada y, en general, si se tiene una función de dispersión lo suficientemente optimizada no será necesario tener en cuenta sobre que implementación de diccionario estemos trabajando, ya que se obtendrá un buen rendimiento en la mayoría de ellos.
+Conclusión general: El algoritmo se comporta de acuerdo con la teoría, ya que el rendimiento depende en gran medida de la calidad de la función de dispersión utilizada y, en general,
+si se tiene una función de dispersión lo suficientemente optimizada no será necesario tener en cuenta sobre que implementación de diccionario estemos trabajando, 
+ya que se obtendrá un buen rendimiento en la mayoría de ellos.
 
 Anomalias: Durante las pruebas, se observaron algunos resultados anómalos en los tiempos de ejecución, particularmente en las tablas de dispersión cerrada con dispersión B.
 Estos valores atípicos podrían ser producto de factores como la interferencia de otros procesos del sistema durante la ejecución. Sin embargo, tras realizar múltiples
