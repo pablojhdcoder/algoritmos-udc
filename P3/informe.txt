@@ -238,7 +238,8 @@ Sin embargo, el crecimiento no es completamente lineal, lo que indica que el alg
 Este comportamiento sugiere que existen otros factores que influyen en el rendimiento, como la dispersión de las claves y las colisiones.
 
 Impacto de la dispersión: Las funciones de dispersión tipo B producen menos colisiones y, por lo tanto, tiempos de búsqueda más bajos. 
-En cambio, cuando la dispersión no es óptima (como en el caso de la dispersión A), el número de colisiones aumenta, lo que degrada el rendimiento y puede acercarse a un comportamiento cuadrático.
+En cambio, cuando la dispersión no es óptima (como en el caso de la dispersión A), el número de colisiones aumenta considerablemente, 
+lo que degrada el rendimiento y aumenta los tiempos de busqueda.
 
 Comparación entre diccionarios de datos: En diccionarios pequeños, el rendimiento es generalmente bueno, con pocas colisiones. 
 Sin embargo, a medida que el tamaño del diccionario crece, el número de colisiones aumenta, lo que provoca un crecimiento en los tiempos de búsqueda. 
