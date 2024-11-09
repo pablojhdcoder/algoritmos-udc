@@ -25,6 +25,10 @@ typedef struct entrada_ {
     item data;
 } entrada;
 
+/*Ocupada = 0:posición vacía.
+Ocupada = 1:posición marcada como borrada (no se usa, pero no se"elimina" físicamente).
+Ocupada = 2:entrada legítima, es decir, contiene datos válidos y está activa.*/
+
 typedef int pos;
 typedef entrada *tabla_cerrada;
 
@@ -56,22 +60,15 @@ pos buscar_cerrada(char *clave, tabla_cerrada diccionario, int tam, int *colisio
 void mostrar_cerrada(tabla_cerrada diccionario, int tam);
 int leer_sinonimos(item datos[]);
 void test();
-void testdiccionario(unsigned int (*dispersion)(char *, int), unsigned int (*resolucion)(unsigned int, int));
-void imprimirTablas();
-void pruebaInsercionYBusqueda();
-//Mide el tiempo de ejecución
+void imprimirTablas(item sinonimos[MAX_CLAVES]);
 double medirTiempo(item sinonimos[],tabla_cerrada *diccionario,
                     unsigned int (*resol_colisiones)(int pos_ini, int num_intento),
                     unsigned int (*dispersion)(char*,int), int n, bool *promedio);
 
-//Posicion en la que se encuentra la clave, no buscar en el orden de inserción de las claves ya que las primeras no va a haber colisiones y los datos para n pequeños no van a aparecer coliciones y los datos no saldrán lineales
-//Por ello escoger al azar, generar número aleatorio y buscar ese elemento
-//Numero de coliciones que se produjeron al introducir la clave
-
 int main(void) {
     item sinonimos[MAX_CLAVES];
-    srand(time(NULL));
     int cantidad = leer_sinonimos(sinonimos);
+    srand(time(NULL));
     if (cantidad != MAX_CLAVES) {
         printf("Error al leer el archivo de sinónimos.\n");
         return EXIT_FAILURE;
@@ -103,7 +100,7 @@ unsigned int dispersionB(char *clave, int tamTabla) {
     int i, n = MIN(8, strlen(clave));
     unsigned int valor = clave[0];
     for (i = 1; i < n; i++)
-        valor = (valor<<5) + clave[i]; //El desplazamiento de 5 bits equivale a multipicar por 32
+        valor = (valor<<5) + clave[i]; //Desplazamiento de 5 bits equivale a multipicar por 32
     return valor % tamTabla;
 }
 
@@ -173,23 +170,14 @@ void inicializar_cerrada(tabla_cerrada *diccionario, int tam) {
 int insertar_cerrada(char *clave, char *sinonimos, tabla_cerrada *diccionario, int tam,
                      unsigned int (*dispersion)(char *, int),
                      unsigned int (*resol_colisiones)(int pos_ini, int num_intento)) {
-    int colisiones = 0, intento = 0;
-    unsigned int pos_ini = dispersion(clave, tam);
-    unsigned index = pos_ini;
-
-    while ((*diccionario)[index].ocupada && intento < tam) {
-        colisiones++;
-        intento++;
-        index = (pos_ini + resol_colisiones(pos_ini, intento)) % tam;
-        // Asegura que el índice se mantenga dentro del tamaño de la tabla
-    }
-
-    if (!(*diccionario)[index].ocupada) {
-        (*diccionario)[index].ocupada = 1;
-        strncpy((*diccionario)[index].data.clave, clave, LONGITUD_CLAVE);
-        strncpy((*diccionario)[index].data.sinonimos, sinonimos, LONGITUD_SINONIMOS);
+    int colisiones = 0;
+    pos pos= buscar_cerrada(clave, *diccionario, tam, &colisiones, dispersion, resol_colisiones);
+    if ((*diccionario)[pos].ocupada != 2) {
+        (*diccionario)[pos].ocupada = 2;
+        strncpy((*diccionario)[pos].data.clave, clave, LONGITUD_CLAVE);
+        strncpy((*diccionario)[pos].data.sinonimos, sinonimos, LONGITUD_SINONIMOS);
     } else {
-        fprintf(stderr, "Error: Tabla de dispersión llena\n");
+        fprintf(stderr, "Error al insertar: Posición no válida o clave existente.\n");
     }
 
     return colisiones;
@@ -200,25 +188,23 @@ int insertar_cerrada(char *clave, char *sinonimos, tabla_cerrada *diccionario, i
 pos buscar_cerrada(char *clave, tabla_cerrada diccionario, int tam, int *colisiones,
                    unsigned int (*dispersion)(char *, int),
                    unsigned int (*resol_colisiones)(int pos_ini, int num_intento)) {
-    unsigned int pos_ini = dispersion(clave, tam); // Cambiado a 'unsigned int'
-    unsigned int index = pos_ini;  // Cambiado a 'unsigned int'
+    unsigned int pos_ini = dispersion(clave, tam);
+    unsigned int index = pos_ini;
     int intento = 0;
 
-    // Realiza la búsqueda mientras la posición esté ocupada y no haya alcanzado el límite de intentos
-    while (diccionario[index].ocupada && intento < tam) {
-        if (strcmp(diccionario[index].data.clave, clave) == 0)  // Si la clave coincide, retorna el índice
-            return index;
+    /* Realiza la búsqueda mientras la posición esté ocupada, el numero de intentos
+     * no exceda el tamaño de la tabla y la clave no coincide con la pasada a la función*/
+    while (diccionario[index].ocupada!=0 && intento < tam
+        && strcmp(diccionario[index].data.clave,clave)!= 0) {
 
         // Si la clave no coincide, incrementa el contador de colisiones y el número de intentos
         (*colisiones)++;
         intento++;
 
-        // Calcula el nuevo índice aplicando la resolución de colisiones
+        // Realiza la resolución de colisiones
         index = (pos_ini + resol_colisiones(pos_ini, intento)) % tam;
     }
-
-    // Si la clave no se encontró, retorna -1
-    return -1;
+    return index;
 }
 
 
@@ -228,10 +214,10 @@ void mostrar_cerrada(tabla_cerrada diccionario, int tam) {
     int i;
     printf("{\n");
     for (i = 0; i < tam; i++) {
-        if (diccionario[i].ocupada) {
-            printf("%d- (%s )\n", i, diccionario[i].data.clave);
+        if (diccionario[i].ocupada == 2) {
+            printf("%2d- (%s)\n", i, diccionario[i].data.clave);
         } else {
-            printf("%d-\n", i);
+            printf("%2d-\n", i);
         }
     }
     printf("}\n");
@@ -241,55 +227,56 @@ void mostrar_cerrada(tabla_cerrada diccionario, int tam) {
 
 
 // Función de prueba para un conjunto reducido de datos
-void test_diccionario(unsigned int (*dispersion)(char *, int), unsigned int (*resolucion)(int, int)) {
+void test_diccionario(unsigned int (*dispersion)(char *, int),
+                        unsigned int (*resolucion)(int, int)){
     tabla_cerrada diccionario;
-    char *nombres[] = {"ANA", "LUIS", "JOSE", "OLGA", "ROSA", "IVAN"};
+    char *nombres[] = {"ANA", "LUIS", "JOSE", "OLGA", "ROSA", "IVAN","CARLOS"};
     int total_colisiones = 0, colisiones, i;
     pos posicion;
 
     inicializar_cerrada(&diccionario, TEST_N);
     for (i = 0; i < 6; i++) {
-        total_colisiones += insertar_cerrada(nombres[i], "",&diccionario, TEST_N, dispersion, resolucion);
+        total_colisiones += insertar_cerrada(nombres[i], "",&diccionario, TEST_N,
+            dispersion, resolucion);
     }
     mostrar_cerrada(diccionario, TEST_N);
     printf("Numero total de colisiones al insertar los elementos: %d\n", total_colisiones);
 
     // Búsqueda de elementos
-    for (i = 0; i < 6; i++) {
+    for (i = 0; i < 7; i++) {
         colisiones = 0;
-        posicion = buscar_cerrada(nombres[i], diccionario, TEST_N, &colisiones, dispersion, resolucion);
-        if (posicion != -1)
-            printf("Al buscar: %s, encuentro: %s, colisiones: %d\n", nombres[i], nombres[i], colisiones);
+        posicion = buscar_cerrada(nombres[i], diccionario, TEST_N, &colisiones,
+            dispersion, resolucion);
+        if(diccionario[posicion].ocupada == 2)
+            printf("Al buscar: %s, encuentro: %s, colisiones: %d\n", nombres[i],
+                diccionario[posicion].data.clave, colisiones);
         else
             printf("No encuentro: %s, colisiones: %d\n", nombres[i], colisiones);
     }
 
-    //Probar a buscar un elemento que no está en la tabla
-    colisiones = 0;
-    posicion = buscar_cerrada("CARLOS", diccionario, TEST_N, &colisiones, dispersion, *resolucion);
-    if(posicion == -1) {
-        printf("No encuentro: CARLOS, colisiones: %d\n", colisiones);
-    }
     free(diccionario);
 }
 
 void test () {
-    printf("***TABLA CERRADA LINEAL\n");
+    printf("\n***TABLA CERRADA LINEAL\n");
     test_diccionario(ndispersion,resol_lineal);
-    printf("***TABLA CERRADA CUADRATICA\n");
+    printf("\n***TABLA CERRADA CUADRATICA\n");
     test_diccionario(ndispersion,resol_cuadratica);
-    printf("***TABLA CERRADA DOBLE\n");
+    printf("\n***TABLA CERRADA DOBLE\n");
     test_diccionario(ndispersion,resol_doble_test);
 }
 
 
 
 // Función para imprimir el encabezado de las tablas
-void imprimirEncabezado(const char *nombreDispersion, const char *tipoResolucion, int numSinonimos, int numColisiones, Cotas *cotas) {
+void imprimirEncabezado(const char *nombreDispersion, const char *tipoResolucion,
+                        int numSinonimos, int numColisiones, Cotas *cotas) {
+
     // Imprime el título con el nombre de la función y el tipo de resolución
     printf("\n***Dispersion cerrada %s con %s\n"
                 "Insertando %d elementos... Numero total de colisiones: %d\n"
-                "Buscando n elementos...\n",nombreDispersion, tipoResolucion, numSinonimos, numColisiones);    // Encabezado de la tabla
+                "Buscando n elementos...\n",nombreDispersion,
+                tipoResolucion, numSinonimos, numColisiones);
     printf("\n%13s%16s%17s%s%19s%s%16s%s\n",
     "n",
     "t(n)",
@@ -311,13 +298,13 @@ double microsegundos() {
 double medirTiempo(item sinonimos[],tabla_cerrada *diccionario,
                     unsigned int (*resol_colisiones)(int pos_ini, int num_intento),
                     unsigned int (*dispersion)(char*,int), int n, bool *promedio) {
-
     double t1, t2, t, tTotal,tInicializacion;
-    int i, j, k = 1000, indice, colisiones = 0 ;                       //Error: En vez de poner el tamaño máximo que voy a tratar es mejor poner n
+    int i, j, k = 1000, indice, colisiones = 0 ;
     t1 = microsegundos();           // Mide el tiempo total (inicialización + ejecución)
     for (i = 0; i < n; i++) {
         indice = rand() % MAX_CLAVES;
-        buscar_cerrada(sinonimos[indice].clave, *diccionario, N, &colisiones, dispersion, resol_colisiones);
+        buscar_cerrada(sinonimos[indice].clave,*diccionario,N,
+            &colisiones,dispersion,resol_colisiones);
     }
     t2 = microsegundos();
     tTotal = t2 - t1;
@@ -329,15 +316,14 @@ double medirTiempo(item sinonimos[],tabla_cerrada *diccionario,
     t2 = microsegundos();
     tInicializacion = t2 - t1;
     t = tTotal - tInicializacion;
-
-
     //Si el tiempo es menor que 500 microsegundos
     if (t < 500) {
-        t1 = microsegundos();           // Mide el tiempo total (inicialización + ejecución)
+        t1 = microsegundos();        // Mide el tiempo total (inicialización + ejecución)
         for (i = 0; i < k; i++) {
             for (j = 0; j < n; j++) {
                 indice = rand() % MAX_CLAVES;
-                buscar_cerrada(sinonimos[indice].clave, *diccionario, N, &colisiones, dispersion, resol_colisiones);
+                buscar_cerrada(sinonimos[indice].clave, *diccionario, N,
+                    &colisiones, dispersion, resol_colisiones);
             }
         }
         t2 = microsegundos();
@@ -392,7 +378,8 @@ void imprimirTiempos(item sinonimos[MAX_CLAVES],
     tabla_cerrada diccionario;
     inicializar_cerrada(&diccionario,N);
     for (i = 0; i < MAX_CLAVES; i++) {
-        colisiones += insertar_cerrada(sinonimos[i].clave,sinonimos[i].sinonimos,&diccionario,N,dispersion,resol_colisiones);
+        colisiones += insertar_cerrada(sinonimos[i].clave,sinonimos[i].sinonimos,
+            &diccionario,N,dispersion,resol_colisiones);
     }
     imprimirEncabezado(nombreDispersion, tipoResolucion,MAX_CLAVES,colisiones,cotas);
 
@@ -400,7 +387,7 @@ void imprimirTiempos(item sinonimos[MAX_CLAVES],
         promedio = false;
         t = medirTiempo(sinonimos, &diccionario, resol_colisiones, dispersion,i, &promedio);
         x = t / cotaSubestimada(i, cotas);
-        y = t / cotaAjustada(i, cotas);
+        y = t / cotaAjustada(i,cotas);
         z = t / cotaSobreestimada(i, cotas);
 
         imprimirFila(i, t, x, y, z, promedio);
@@ -416,27 +403,33 @@ void imprimirTablas(item sinonimos[MAX_CLAVES]){
 
     // Pruebas con dispersión cerrada lineal y diferentes cotas para dispersionA
     cotas = (Cotas){0.81, 1.01, 1.01, "n^0.81", "n^1.01", "n^1.01*log(n)"};
-    imprimirTiempos(sinonimos,dispersionA, resol_lineal, "lineal", "dispersión A", &cotas);
+    imprimirTiempos(sinonimos,dispersionA, resol_lineal,
+        "lineal", "dispersión A", &cotas);
 
     // Pruebas con dispersión cerrada lineal y diferentes cotas para dispersionB
     cotas = (Cotas){0.85, 1.05, 1.05, "n^0.85", "n^1.05", "n^1.05*log(n)"};
-    imprimirTiempos(sinonimos,dispersionB, resol_lineal, "lineal", "dispersión B", &cotas);
+    imprimirTiempos(sinonimos,dispersionB, resol_lineal,
+        "lineal", "dispersión B", &cotas);
 
     // Pruebas con dispersión cerrada cuadrática y diferentes cotas para dispersionA
     cotas = (Cotas){0.81, 1.01, 1.01, "n^0.81", "n^1.01", "n^1.01*log(n)"};
-    imprimirTiempos(sinonimos,dispersionA, resol_cuadratica, "cuadrática", "dispersión A", &cotas);
+    imprimirTiempos(sinonimos,dispersionA, resol_cuadratica,
+        "cuadrática", "dispersión A", &cotas);
 
 
     // Pruebas con dispersión cerrada cuadrática y diferentes cotas para dispersionB
     cotas = (Cotas){0.83, 1.03, 1.03, "n^0.83", "n^1.03", "n^1.03*log(n)"};
-    imprimirTiempos(sinonimos,dispersionB, resol_cuadratica, "cuadrática", "dispersión B", &cotas);
+    imprimirTiempos(sinonimos,dispersionB, resol_cuadratica,
+        "cuadrática", "dispersión B", &cotas);
 
     // Pruebas con resolución doble y diferentes cotas para dispersionA
     cotas = (Cotas){0.81, 1.01, 1.01, "n^0.81", "n^1.01", "n^1.01*log(n)"};
-    imprimirTiempos(sinonimos,dispersionA, resol_doble, "doble", "dispersión A", &cotas);
+    imprimirTiempos(sinonimos,dispersionA, resol_doble,
+        "doble", "dispersión A", &cotas);
 
     // Pruebas con resolución doble y diferentes cotas para dispersionB
     cotas = (Cotas){0.82, 1.02, 1.02, "n^0.82", "n^1.02", "n^1.02*log(n)"};
-    imprimirTiempos(sinonimos,dispersionB, resol_doble, "doble", "dispersión B", &cotas);
+    imprimirTiempos(sinonimos,dispersionB, resol_doble,
+        "doble", "dispersión B", &cotas);
 
-}//Comprobar empíricamente la complejidad O(n) del algoritmo que se utiliza para buscar
+}
