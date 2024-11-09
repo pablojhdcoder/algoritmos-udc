@@ -18,7 +18,8 @@ Diccionario de datos
 En esta práctica se implementa un programa de consulta de sinónimos usando un archivo de 19,062 entradas (sinonimos.txt). 
 El objetivo es comparar la eficiencia de distintas implementaciones de diccionarios de datos en términos de colisiones y tiempos de búsqueda. 
 Para ello, se usan tres métodos de manejo de colisiones en tablas de dispersión cerradas: exploración lineal, exploración cuadrática y doble dispersión. 
-Además, cada implementación de diccionario de datos se prueba con dos funciones de dispersión diferentes, para medir el número total de colisiones al insertar todos los datos de sinonimos.txt y calcular empíricamente la complejidad computacional de la búsqueda de n elementos.
+Además, cada implementación de diccionario de datos se prueba con dos funciones de dispersión diferentes, para medir el número total de colisiones al insertar todos los datos de sinonimos.txt 
+y calcular empíricamente la complejidad computacional de la búsqueda de n elementos.
 
 ****MAQUINA*******
 ------------------
