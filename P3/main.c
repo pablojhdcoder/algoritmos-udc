@@ -394,7 +394,7 @@ void imprimirTiempos(item sinonimos[MAX_CLAVES],
     for (i = 0; i < MAX_CLAVES; i++) {
         colisiones += insertar_cerrada(sinonimos[i].clave,sinonimos[i].sinonimos,&diccionario,N,dispersion,resol_colisiones);
     }
-    imprimirEncabezado(nombreDispersion, tipoResolucion,N,colisiones,cotas);
+    imprimirEncabezado(nombreDispersion, tipoResolucion,MAX_CLAVES,colisiones,cotas);
 
     for (i = 125; i <= 16000; i *= 2) {
         promedio = false;
