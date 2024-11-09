@@ -234,10 +234,11 @@ n^1.02*log(n) es la cota sobreestimada
 A partir de los datos obtenidos y los tiempos de ejecución medidos, podemos concluir lo siguiente:
 
 Crecimiento de los tiempos de búsqueda: Los tiempos de búsqueda aumentan conforme crece el tamaño del diccionario (n), lo cual es esperado. 
-Sin embargo, el crecimiento no es completamente lineal, lo que indica que el algoritmo no sigue una complejidad O(n) exacta en todos los casos. Este comportamiento sugiere que existen otros factores que influyen
-en el rendimiento, como la dispersión de las claves y las colisiones.
+Sin embargo, el crecimiento no es completamente lineal, lo que indica que el algoritmo no sigue una complejidad O(n) exacta en todos los casos. 
+Este comportamiento sugiere que existen otros factores que influyen en el rendimiento, como la dispersión de las claves y las colisiones.
 
-Impacto de la dispersión: Las funciones de dispersión tipo B producen menos colisiones y, por lo tanto, tiempos de búsqueda más bajos. En cambio, cuando la dispersión no es óptima (como en el caso de la dispersión A), el número de colisiones aumenta, lo que degrada el rendimiento y puede acercarse a un comportamiento cuadrático.
+Impacto de la dispersión: Las funciones de dispersión tipo B producen menos colisiones y, por lo tanto, tiempos de búsqueda más bajos. 
+En cambio, cuando la dispersión no es óptima (como en el caso de la dispersión A), el número de colisiones aumenta, lo que degrada el rendimiento y puede acercarse a un comportamiento cuadrático.
 
 Comparación entre diccionarios de datos: En diccionarios pequeños, el rendimiento es generalmente bueno, con pocas colisiones. Sin embargo, a medida que el tamaño del diccionario crece, el número de colisiones aumenta, lo que provoca un crecimiento en los tiempos de búsqueda. A pesar de esto, al realizar múltiples pruebas, el rendimiento tiende a estabilizarse, lo que indica una cierta consistencia en el comportamiento del algoritmo.
 
