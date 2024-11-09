@@ -224,7 +224,7 @@ Buscando n elementos...
 
 
 n^0.82 es la cota subestimada
-n^1.02 es la cota ajustada y la Cte = 0.17
+n^1.02 es la cota ajustada y la Cte = 0.13
 n^1.02*log(n) es la cota sobreestimada
 
 
