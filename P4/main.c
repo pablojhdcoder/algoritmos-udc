@@ -32,7 +32,14 @@ void crearMonticulo(pmonticulo m, int v [], int n);     //Construye nuevo montí
 
 //Punto 4, comparar los resultados con los implementados en la práctica 2.
 
-
+int consultarMenor(const pmonticulo m) {
+    if (m->ultimo == -1) {
+        printf("El montículo está vacío.\n");
+        return -1; // Se podría elegir un valor especial o generar un error
+    }
+    // El menor elemento está siempre en la raíz (posición 0)
+    return m->vector[0];
+}
 
 int main(void) {
     printf("Hello, World!\n");
