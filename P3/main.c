@@ -26,7 +26,7 @@ typedef struct entrada_ {
 } entrada;
 
 /*Ocupada = 0:posición vacía.
-Ocupada = 1:posición marcada como borrada (no se usa, pero no se"elimina" físicamente).
+Ocupada = 1:posición marcada como borrada (no se usa, pero no se"elimina" físicamente).        //Error: Este campo no es necesario porque en esta práctica no se usa, por ello, poner en ocupada = 1 lo de ocupada = 2
 Ocupada = 2:entrada legítima, es decir, contiene datos válidos y está activa.*/
 
 typedef int pos;
@@ -185,8 +185,8 @@ int insertar_cerrada(char *clave, char *sinonimos, tabla_cerrada *diccionario, i
 
 
 // Función para buscar en la tabla cerrada
-pos buscar_cerrada(char *clave, tabla_cerrada diccionario, int tam, int *colisiones,
-                   unsigned int (*dispersion)(char *, int),
+pos buscar_cerrada(char *clave, tabla_cerrada diccionario, int tam, int *colisiones,            //ERROR: No es necesaria la comprobacion del if intento<tam y tampoco intento++ porque tiene el mismo valor que *colisiones, por tanto, la variable intento sobra 
+                   unsigned int (*dispersion)(char *, int),                                        
                    unsigned int (*resol_colisiones)(int pos_ini, int num_intento)) {
     unsigned int pos_ini = dispersion(clave, tam);
     unsigned int index = pos_ini;
