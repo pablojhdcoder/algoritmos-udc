@@ -23,7 +23,7 @@ void crearMonticulo(pmonticulo m, int v [], int n);     //Construye nuevo montí
 
 /*Recalcular pos tengo que pasar a empezar en 1
  * tengo que pasar a la escala de 1, 2, ..
- * hi ( i ) = 2 (i+1) -1 = 2i +2 -1 = 2i+1
+ * hi (i) = 2 (i+1) -1 = 2i +2 -1 = 2i+1
  * hd (i) = 2i +2
  * pad (i) = 1+1/2 -1 = 1+1-2/2 = i-1/2
  */
@@ -32,9 +32,20 @@ void crearMonticulo(pmonticulo m, int v [], int n);     //Construye nuevo montí
 
 //Punto 4, comparar los resultados con los implementados en la práctica 2.
 
+
+
+int main(void) {
+    //test();
+    return 0;
+}
+
+void iniMonticulo(pmonticulo m) {
+    m->ultimo = -1;
+}
+
 // Inserta un elemento `x` en el montículo `m`, manteniendo la propiedad de mínimo.
 void insertarMonticulo(pmonticulo m, int x) {
-    int i, padre;  
+    int i, padre;
 
     // Verificamos si el montículo está lleno
     if (m->ultimo == TAM - 1) {
@@ -46,7 +57,7 @@ void insertarMonticulo(pmonticulo m, int x) {
     m->ultimo++;
     i = m->ultimo;
 
-    // Ajuste hacia arriba (up-heapify): movemos el nuevo elemento hacia arriba 
+    // Ajuste hacia arriba (up-heapify): movemos el nuevo elemento hacia arriba
     // hasta encontrar su posición correcta para mantener la propiedad de mínimo
     while (i > 0 && x < m->vector[(i - 1) / 2]) {
         m->vector[i] = m->vector[(i - 1) / 2];  // Subimos el valor del padre
@@ -59,7 +70,7 @@ void insertarMonticulo(pmonticulo m, int x) {
 
 // Elimina el elemento mínimo del montículo `m` (la raíz) y mantiene la propiedad de mínimo.
 void quitarMenor(pmonticulo m) {
-    int menor, ultimo, i, hijo;  
+    int menor, ultimo, i, hijo;
 
     // Verificamos si el montículo está vacío
     if (m->ultimo == -1) {
@@ -98,10 +109,12 @@ void quitarMenor(pmonticulo m) {
     m->vector[i] = ultimo;
 }
 
+//PARA QUE ES ESTA FUNCIÓN?
+
 // Verifica si el montículo `m` cumple con la propiedad de mínimo.
 // Devuelve 1 si el montículo es válido, y 0 en caso contrario.
 int esMonticuloValido(const pmonticulo m) {
-    int hijoIzq, hijoDer, i;  
+    int hijoIzq, hijoDer, i;
 
     // Recorremos todos los nodos que tienen hijos (hasta el penúltimo nivel)
     for (i = 0; i <= (m->ultimo - 1) / 2; i++) {
@@ -121,9 +134,6 @@ int esMonticuloValido(const pmonticulo m) {
     return 1;  // El montículo cumple con la propiedad de mínimo
 }
 
-
-
-
 int consultarMenor(const pmonticulo m) {
     if (m->ultimo == -1) {
         printf("El montículo está vacío.\n");
@@ -133,7 +143,44 @@ int consultarMenor(const pmonticulo m) {
     return m->vector[0];
 }
 
-int main(void) {
-    printf("Hello, World!\n");
-    return 0;
+void static ajustarMonticulo(pmonticulo m, int i) {
+    int mayor, hi, hd, tmp;
+
+    do {
+        mayor = i;
+        hi = 2*i + 1;
+        hd = 2*i + 2;
+
+        //Comparar con el hijo izquierdo
+        if (hi <= m->ultimo && m->vector[hi] > m->vector[mayor]) {
+            mayor = hi;
+        }
+
+        //Comparar con el hijo derecho
+        if (hd <= m->ultimo && m->vector[hd] > m->vector[mayor]) {
+            mayor = hd;
+        }
+
+        //Intercambiamos el hijo mayor (si lo hay) con el nodo actual
+        if (mayor != i) {
+            tmp = m->vector[i];
+            m->vector[i] = m->vector[mayor];
+            m->vector[mayor] = tmp;
+            i = mayor;
+        }
+    } while (mayor != i);
+
+}
+
+void crearMonticulo(pmonticulo m, int v[], int n) {
+    for (int i = 0; i < n; i++) {
+        m->vector[i] = v[i];
+    }
+    m->ultimo = n-1;
+
+    //Construímos montículo desde el nodo hoja
+    for (int i = m->ultimo/2; i >= 0; i--) {
+        ajustarMonticulo(m,i);
+    }
+
 }
