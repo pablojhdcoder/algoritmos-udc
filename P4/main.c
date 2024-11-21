@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #define TAM 256000
 
@@ -10,15 +11,11 @@ struct monticulo {
 typedef struct monticulo * pmonticulo;
 
 
-void iniMonticulo(pmonticulo m);        //ultimo -1
+void iniMonticulo(pmonticulo *m);        //ultimo -1
 void insertarMonticulo(pmonticulo m, int x);    //Añade x al monticulo
 void quitarMenor(pmonticulo m);
 int consultarMenor(const pmonticulo m);     //Que elemento ocupa la reíz
-void crearMonticulo(pmonticulo m, int v [], int n);
-void ordenarPorMonticulos(int v[], int n);
-int comprobarOrdenacion(const int v[], int n);
-void imprimirArray(const int v[], int n);
-void testOrdenacion();//Construye nuevo montículo a partir de v
+void crearMonticulo(pmonticulo m, int v [], int n);     //Construye nuevo montículo a partir de v
 
 //implementar también hundir (en insertar) y flotar
 //diseñar test de prueba propio
@@ -39,43 +36,80 @@ void testOrdenacion();//Construye nuevo montículo a partir de v
 
 
 int main(void) {
+    pmonticulo m;
+    iniMonticulo(m);
     //test();
-    testOrdenacion();
     return 0;
 }
 
-void iniMonticulo(pmonticulo m) {
-    m->ultimo = -1;
+static void intercambiar (pmonticulo m, int pos1, int pos2) {
+    int tmp;
+    tmp = m->vector[pos1];
+    m->vector[pos1] = m->vector[pos2];
+    m->vector[pos2] = tmp;
+}
+
+static void flotar(pmonticulo m, int i) {
+    while (i > 0 && m->vector[(i - 1) / 2] < m->vector[i]) {
+        intercambiar(m, (i - 1) / 2, i);                // Intercambiamos el nodo actual con su padre
+        i = (i - 1) / 2;                // Subimos al índice del padre
+    }
+}
+
+static void hundir(pmonticulo m, int i) {
+    int hijoIzq, hijoDer, j;
+
+    do {
+        hijoIzq = 2 * i + 1;  // Índice del hijo izquierdo
+        hijoDer = 2 * i + 2;  // Índice del hijo derecho
+        j = i;                // Índice original antes de buscar el mayor
+
+        // Comparamos con el hijo derecho
+        if (hijoDer <= m->ultimo && m->vector[hijoDer] > m->vector[i]) {
+            i = hijoDer;
+        }
+
+        // Comparamos con el hijo izquierdo
+        if (hijoIzq <= m->ultimo && m->vector[hijoIzq] > m->vector[i]) {
+            i = hijoIzq;
+        }
+
+        // Intercambiamos los elementos si es necesario
+        if (j != i) {
+            intercambiar(m, j, i);
+        }
+
+    } while (j != i);  // Terminamos cuando el nodo alcanza su posición final
+}
+
+void iniMonticulo(pmonticulo *m) {
+    *m = malloc(sizeof(struct monticulo));
+    if (*m == NULL) {
+        fprintf(stderr, "Error al asignar memoria para el montículo.\n");
+        exit(EXIT_FAILURE);
+    }
+    (*m)->ultimo = -1;
 }
 
 // Inserta un elemento `x` en el montículo `m`, manteniendo la propiedad de mínimo.
 void insertarMonticulo(pmonticulo m, int x) {
-    int i, padre;
-
     // Verificamos si el montículo está lleno
     if (m->ultimo == TAM - 1) {
         printf("Montículo lleno\n");
         return;
     }
 
-    // Incrementamos `ultimo` para agregar el nuevo elemento al final del montículo
+    // Incrementamos `ultimo` y colocamos el nuevo elemento al final
     m->ultimo++;
-    i = m->ultimo;
+    m->vector[m->ultimo] = x;
 
-    // Ajuste hacia arriba (up-heapify): movemos el nuevo elemento hacia arriba
-    // hasta encontrar su posición correcta para mantener la propiedad de mínimo
-    while (i > 0 && x < m->vector[(i - 1) / 2]) {
-        m->vector[i] = m->vector[(i - 1) / 2];  // Subimos el valor del padre
-        i = (i - 1) / 2;  // Actualizamos `i` al índice del padre
-    }
-
-    // Colocamos el nuevo elemento en su posición correcta
-    m->vector[i] = x;
+    // Ajuste hacia arriba (flotar) para restaurar la propiedad del montículo
+    flotar(m, m->ultimo);
 }
 
 // Elimina el elemento mínimo del montículo `m` (la raíz) y mantiene la propiedad de mínimo.
 void quitarMenor(pmonticulo m) {
-    int menor, ultimo, i, hijo;
+    int ultimo;
 
     // Verificamos si el montículo está vacío
     if (m->ultimo == -1) {
@@ -83,60 +117,20 @@ void quitarMenor(pmonticulo m) {
         return;
     }
 
-    // Almacenamos el mínimo (la raíz) y el último elemento del montículo
-    menor = m->vector[0];
+    // Guardamos el último elemento
     ultimo = m->vector[m->ultimo];
 
     // Reducimos el tamaño del montículo
     m->ultimo--;
 
-    // Comenzamos desde la raíz (índice 0) y ajustamos hacia abajo (down-heapify)
-    i = 0;
-    while (2 * i + 1 <= m->ultimo) {
-        hijo = 2 * i + 1;  // Calculamos el índice del hijo izquierdo
+    // Si el montículo tiene más de un elemento, realizamos el ajuste hacia abajo (hundir)
+    if (m->ultimo >= 0) {
+        m->vector[0] = ultimo;  // Colocamos el último elemento en la raíz
 
-        // Si el hijo derecho existe y es menor que el hijo izquierdo, seleccionamos el hijo derecho
-        if (hijo < m->ultimo && m->vector[hijo] > m->vector[hijo + 1]) {
-            hijo++;
-        }
-
-        // Si el último elemento es menor o igual al hijo más pequeño, hemos encontrado su posición
-        if (ultimo <= m->vector[hijo]) {
-            break;
-        }
-
-        // Subimos el valor del hijo más pequeño
-        m->vector[i] = m->vector[hijo];
-        i = hijo;  // Movemos `i` hacia abajo en el árbol
+        // Ajustamos el montículo para restaurar la propiedad de mínimo
+        hundir(m, 0);  // Llamamos a la función hundir para restaurar el montículo
     }
 
-    // Colocamos el último elemento en la posición correcta
-    m->vector[i] = ultimo;
-}
-
-//PARA QUE ES ESTA FUNCIÓN?
-
-// Verifica si el montículo `m` cumple con la propiedad de mínimo.
-// Devuelve 1 si el montículo es válido, y 0 en caso contrario.
-int esMonticuloValido(const pmonticulo m) {
-    int hijoIzq, hijoDer, i;
-
-    // Recorremos todos los nodos que tienen hijos (hasta el penúltimo nivel)
-    for (i = 0; i <= (m->ultimo - 1) / 2; i++) {
-        hijoIzq = 2 * i + 1;  // Calculamos el índice del hijo izquierdo
-        hijoDer = 2 * i + 2;  // Calculamos el índice del hijo derecho
-
-        // Verificamos que el nodo actual sea menor o igual que su hijo izquierdo
-        if (hijoIzq <= m->ultimo && m->vector[i] > m->vector[hijoIzq]) {
-            return 0;  // El montículo no es válido si el padre es mayor que el hijo izquierdo
-        }
-
-        // Verificamos que el nodo actual sea menor o igual que su hijo derecho
-        if (hijoDer <= m->ultimo && m->vector[i] > m->vector[hijoDer]) {
-            return 0;  // El montículo no es válido si el padre es mayor que el hijo derecho
-        }
-    }
-    return 1;  // El montículo cumple con la propiedad de mínimo
 }
 
 int consultarMenor(const pmonticulo m) {
@@ -148,34 +142,6 @@ int consultarMenor(const pmonticulo m) {
     return m->vector[0];
 }
 
-void static ajustarMonticulo(pmonticulo m, int i) {
-    int mayor, hi, hd, tmp;
-
-    do {
-        mayor = i;
-        hi = 2*i + 1;
-        hd = 2*i + 2;
-
-        //Comparar con el hijo izquierdo
-        if (hi <= m->ultimo && m->vector[hi] > m->vector[mayor]) {
-            mayor = hi;
-        }
-
-        //Comparar con el hijo derecho
-        if (hd <= m->ultimo && m->vector[hd] > m->vector[mayor]) {
-            mayor = hd;
-        }
-
-        //Intercambiamos el hijo mayor (si lo hay) con el nodo actual
-        if (mayor != i) {
-            tmp = m->vector[i];
-            m->vector[i] = m->vector[mayor];
-            m->vector[mayor] = tmp;
-            i = mayor;
-        }
-    } while (mayor != i);
-
-}
 
 void crearMonticulo(pmonticulo m, int v[], int n) {
     for (int i = 0; i < n; i++) {
@@ -185,7 +151,7 @@ void crearMonticulo(pmonticulo m, int v[], int n) {
 
     //Construímos montículo desde el nodo hoja
     for (int i = m->ultimo/2; i >= 0; i--) {
-        ajustarMonticulo(m,i);
+        hundir(m,i);
     }
 
 }
