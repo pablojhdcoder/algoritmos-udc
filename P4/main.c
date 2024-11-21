@@ -14,7 +14,11 @@ void iniMonticulo(pmonticulo m);        //ultimo -1
 void insertarMonticulo(pmonticulo m, int x);    //Añade x al monticulo
 void quitarMenor(pmonticulo m);
 int consultarMenor(const pmonticulo m);     //Que elemento ocupa la reíz
-void crearMonticulo(pmonticulo m, int v [], int n);     //Construye nuevo montículo a partir de v
+void crearMonticulo(pmonticulo m, int v [], int n);
+void ordenarPorMonticulos(int v[], int n);
+int comprobarOrdenacion(const int v[], int n);
+void imprimirArray(const int v[], int n);
+void testOrdenacion();//Construye nuevo montículo a partir de v
 
 //implementar también hundir (en insertar) y flotar
 //diseñar test de prueba propio
@@ -36,6 +40,7 @@ void crearMonticulo(pmonticulo m, int v [], int n);     //Construye nuevo montí
 
 int main(void) {
     //test();
+    testOrdenacion();
     return 0;
 }
 
@@ -183,4 +188,54 @@ void crearMonticulo(pmonticulo m, int v[], int n) {
         ajustarMonticulo(m,i);
     }
 
+}
+
+// Ordena un array usando el algoritmo de montículos
+void ordenarPorMonticulos(int v[], int n) {
+    struct monticulo m;
+    crearMonticulo(&m, v, n);
+    for (int i = 0; i < n; i++) {
+        v[i] = consultarMenor(&m);
+        quitarMenor(&m);
+    }
+}
+
+// Imprime un array
+void imprimirArray(const int v[], int n) {
+    for (int i = 0; i < n; i++) {
+        printf("%d ", v[i]);
+    }
+    printf("\n");
+}
+
+// Verifica si un array está ordenado
+int comprobarOrdenacion(const int v[], int n) {
+    for (int i = 1; i < n; i++) {
+        if (v[i - 1] > v[i]) return 0;
+    }
+    return 1;
+}
+
+// Prueba el algoritmo de ordenación
+void testOrdenacion() {
+    int v[] = {5, 3, 8, 4, 2, 7, 1, 6};
+    int n = sizeof(v) / sizeof(v[0]);
+    struct monticulo m;
+
+    printf("Array original:\n");
+    imprimirArray(v, n);
+
+    crearMonticulo(&m, v, n);
+    printf("Contenido del montículo inicial:\n");
+    imprimirArray(m.vector, m.ultimo + 1);
+
+    ordenarPorMonticulos(v, n);
+    printf("Array después de ordenar:\n");
+    imprimirArray(v, n);
+
+    if (comprobarOrdenacion(v, n)) {
+        printf("El algoritmo de ordenación ha funcionado correctamente.\n");
+    } else {
+        printf("El algoritmo de ordenación no ha funcionado correctamente.\n");
+    }
 }
