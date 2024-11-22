@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #define TAM 256000
 
@@ -10,12 +11,26 @@ struct monticulo {
 };
 typedef struct monticulo * pmonticulo;
 
-
-void iniMonticulo(pmonticulo *m);        //ultimo -1
-void insertarMonticulo(pmonticulo m, int x);    //Añade x al monticulo
+// Declaraciones de funciones
+void test();
+void iniMonticulo(pmonticulo *m);
+void insertarMonticulo(pmonticulo m, int x);
 void quitarMenor(pmonticulo m);
-int consultarMenor(const pmonticulo m);     //Que elemento ocupa la reíz
-void crearMonticulo(pmonticulo m, int v [], int n);     //Construye nuevo montículo a partir de v
+int consultarMenor(const pmonticulo m);
+void crearMonticulo(pmonticulo m, int v[], int n);
+void ordenarPorMonticulos(int v[], int n);
+int comprobarOrdenacion(const int v[], int n);
+void inicializar_semilla();
+
+void aleatorio(int v[], int n);
+void ascendente(int v[], int n);
+void descendente(int v[], int n);
+void imprimirArray(const int v[], int n);
+
+// Funciones auxiliares
+static void intercambiar(pmonticulo m, int pos1, int pos2);
+static void flotar(pmonticulo m, int i);
+static void hundir(pmonticulo m, int i);
 
 //implementar también hundir (en insertar) y flotar
 //diseñar test de prueba propio
@@ -36,9 +51,11 @@ void crearMonticulo(pmonticulo m, int v [], int n);     //Construye nuevo montí
 
 
 int main(void) {
-    pmonticulo m;
-    iniMonticulo(m);
-    //test();
+    inicializar_semilla();
+    pmonticulo m;       // Declaración del puntero
+    iniMonticulo(&m);   // Inicialización del montículo
+    test();             // Llama al test
+    free(m);            // Libera la memoria al final
     return 0;
 }
 
@@ -88,7 +105,7 @@ void iniMonticulo(pmonticulo *m) {
         fprintf(stderr, "Error al asignar memoria para el montículo.\n");
         exit(EXIT_FAILURE);
     }
-    (*m)->ultimo = -1;
+    (*m)->ultimo = -1; // Inicializa el montículo vacío
 }
 
 // Inserta un elemento `x` en el montículo `m`, manteniendo la propiedad de mínimo.
@@ -158,17 +175,46 @@ void crearMonticulo(pmonticulo m, int v[], int n) {
 
 // Ordena un array usando el algoritmo de montículos
 void ordenarPorMonticulos(int v[], int n) {
-    struct monticulo m;
-    crearMonticulo(&m, v, n);
-    for (int i = 0; i < n; i++) {
-        v[i] = consultarMenor(&m);
-        quitarMenor(&m);
+    pmonticulo m;
+    iniMonticulo(&m);
+    crearMonticulo(m, v, n);
+
+    for (int i = n - 1; i >= 0; i--) {
+        v[i] = consultarMenor(m);
+        intercambiar(m, 0, m->ultimo); // Llevar el mínimo al final
+        m->ultimo--;                   // Reducir el tamaño efectivo
+        hundir(m, 0);                  // Restaurar la propiedad del montículo
     }
+
+    free(m);
 }
+
+void inicializar_semilla() {
+    srand(time(NULL));
+}
+
+void aleatorio(int v[], int n) {/* se generan números pseudoaleatorio entre -n y +n */
+    int i, m=2*n+1;
+    for (i=0; i < n; i++)
+        v[i] = (rand() % m) - n;
+}
+void ascendente(int v [], int n) {
+    int i;
+    for (i=0; i < n; i++)
+        v[i] = i;
+}
+
+void descendente(int v [], int n) {
+    int i;
+    for (i=0; i < n; i++)
+        v[i] = n-i;
+}
+
 
 // Imprime un array
 void imprimirArray(const int v[], int n) {
-    for (int i = 0; i < n; i++) {
+    int i;
+    for (i = 0; i < n; i++) {
         printf("%d ", v[i]);
     }
     printf("\n");
@@ -176,32 +222,38 @@ void imprimirArray(const int v[], int n) {
 
 // Verifica si un array está ordenado
 int comprobarOrdenacion(const int v[], int n) {
-    for (int i = 1; i < n; i++) {
-        if (v[i - 1] > v[i]) return 0;
+    int i;
+    for (i = 0; i < n - 1; i++) {
+        if (v[i] > v[i + 1]) {
+            return 0;
+        }
     }
     return 1;
 }
 
-// Prueba el algoritmo de ordenación
-void testOrdenacion() {
-    int v[] = {5, 3, 8, 4, 2, 7, 1, 6};
-    int n = sizeof(v) / sizeof(v[0]);
-    struct monticulo m;
-
-    printf("Array original:\n");
+// Función para realizar la ordenación y mostrar resultados
+void ordenacion(void (inicializacion)(int[], int), void (algoritmo)(int[], int), int n, int v[n]) {
+    inicializacion(v, n);
     imprimirArray(v, n);
-
-    crearMonticulo(&m, v, n);
-    printf("Contenido del montículo inicial:\n");
-    imprimirArray(m.vector, m.ultimo + 1);
-
-    ordenarPorMonticulos(v, n);
-    printf("Array después de ordenar:\n");
+    printf("Ordenado? %d\n", comprobarOrdenacion(v, n));
+    printf("Ordenando...\n");
+    algoritmo(v, n);
     imprimirArray(v, n);
+    printf("Ordenado? %d\n\n", comprobarOrdenacion(v, n));
+}
 
-    if (comprobarOrdenacion(v, n)) {
-        printf("El algoritmo de ordenación ha funcionado correctamente.\n");
-    } else {
-        printf("El algoritmo de ordenación no ha funcionado correctamente.\n");
-    }
+void imprimir_test(int n, int v[n], void (algoritmo)(int[], int), char nombre_algoritmo[]) {
+    printf("Ordenacion %s con inicializacion aleatoria\n", nombre_algoritmo);
+    ordenacion(aleatorio, algoritmo, n, v);
+    printf("Ordenacion %s con inicializacion descendente\n", nombre_algoritmo);
+    ordenacion(descendente, algoritmo, n, v);
+    printf("Ordenacion %s con inicializacion ascendente\n", nombre_algoritmo);
+    ordenacion(ascendente, algoritmo, n, v);
+}
+
+void test() {
+    inicializar_semilla();
+    int n = 10;
+    int v[n];
+    imprimir_test(n, v, ordenarPorMonticulos, "por monticulos");
 }
