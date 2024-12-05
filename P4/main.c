@@ -11,13 +11,12 @@ struct monticulo {
 };
 typedef struct monticulo * pmonticulo;
 
-// Declaraciones de funciones
 void test();
-void iniMonticulo(pmonticulo *m);
-void insertarMonticulo(pmonticulo m, int x);
+void iniMonticulo(pmonticulo *m);        //ultimo -1
+void insertarMonticulo(pmonticulo m, int x);    //Añade x al monticulo
 void quitarMenor(pmonticulo m);
-int consultarMenor(const pmonticulo m);
-void crearMonticulo(pmonticulo m, int v[], int n);
+int consultarMenor(const pmonticulo m);     //Que elemento ocupa la reíz
+void crearMonticulo(pmonticulo m, int v [], int n);     //Construye nuevo montículo a partir de v
 void ordenarPorMonticulos(int v[], int n);
 int comprobarOrdenacion(const int v[], int n);
 void inicializar_semilla();
@@ -26,11 +25,6 @@ void aleatorio(int v[], int n);
 void ascendente(int v[], int n);
 void descendente(int v[], int n);
 void imprimirArray(const int v[], int n);
-
-// Funciones auxiliares
-static void intercambiar(pmonticulo m, int pos1, int pos2);
-static void flotar(pmonticulo m, int i);
-static void hundir(pmonticulo m, int i);
 
 //implementar también hundir (en insertar) y flotar
 //diseñar test de prueba propio
@@ -56,7 +50,6 @@ int main(void) {
     iniMonticulo(&m);   // Inicialización del montículo
     test();             // Llama al test
     free(m);            // Libera la memoria al final
-    return 0;
 }
 
 static void intercambiar (pmonticulo m, int pos1, int pos2) {
@@ -105,7 +98,7 @@ void iniMonticulo(pmonticulo *m) {
         fprintf(stderr, "Error al asignar memoria para el montículo.\n");
         exit(EXIT_FAILURE);
     }
-    (*m)->ultimo = -1; // Inicializa el montículo vacío
+    (*m)->ultimo = -1;  // Inicializa el montículo vacío
 }
 
 // Inserta un elemento `x` en el montículo `m`, manteniendo la propiedad de mínimo.
@@ -209,7 +202,6 @@ void descendente(int v [], int n) {
     for (i=0; i < n; i++)
         v[i] = n-i;
 }
-
 
 // Imprime un array
 void imprimirArray(const int v[], int n) {
