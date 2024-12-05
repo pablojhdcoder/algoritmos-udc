@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <math.h>
 #include <time.h>
+#include <sys/time.h>
 
 #define TAM 256000
 
@@ -10,6 +13,16 @@ struct monticulo {
     int vector[TAM];
 };
 typedef struct monticulo * pmonticulo;
+
+// Definición de la estructura para las cotas
+typedef struct {
+    double cotaSubestimada;
+    double cotaAjustada;
+    double cotaSobreestimada;
+    const char *strCotaSubestimada;
+    const char *strCotaAjustada;
+    const char *strCotaSobreestimada;
+} Cotas;
 
 void test();
 void iniMonticulo(pmonticulo *m);        //ultimo -1
@@ -25,6 +38,9 @@ void aleatorio(int v[], int n);
 void ascendente(int v[], int n);
 void descendente(int v[], int n);
 void imprimirArray(const int v[], int n);
+
+void imprimirTablas();
+
 
 //implementar también hundir (en insertar) y flotar
 //diseñar test de prueba propio
@@ -46,10 +62,8 @@ void imprimirArray(const int v[], int n);
 
 int main(void) {
     inicializar_semilla();
-    pmonticulo m;       // Declaración del puntero
-    iniMonticulo(&m);   // Inicialización del montículo
     test();             // Llama al test
-    free(m);            // Libera la memoria al final
+    imprimirTablas();
 }
 
 static void intercambiar (pmonticulo m, int pos1, int pos2) {
@@ -60,7 +74,7 @@ static void intercambiar (pmonticulo m, int pos1, int pos2) {
 }
 
 static void flotar(pmonticulo m, int i) {
-    while (i > 0 && m->vector[(i - 1) / 2] < m->vector[i]) {
+    while (i > 0 && m->vector[(i - 1) / 2] > m->vector[i]) {
         intercambiar(m, (i - 1) / 2, i);                // Intercambiamos el nodo actual con su padre
         i = (i - 1) / 2;                // Subimos al índice del padre
     }
@@ -75,12 +89,12 @@ static void hundir(pmonticulo m, int i) {
         j = i;                // Índice original antes de buscar el mayor
 
         // Comparamos con el hijo derecho
-        if (hijoDer <= m->ultimo && m->vector[hijoDer] > m->vector[i]) {
+        if (hijoDer <= m->ultimo && m->vector[hijoDer] < m->vector[i]) {
             i = hijoDer;
         }
 
         // Comparamos con el hijo izquierdo
-        if (hijoIzq <= m->ultimo && m->vector[hijoIzq] > m->vector[i]) {
+        if (hijoIzq <= m->ultimo && m->vector[hijoIzq] < m->vector[i]) {
             i = hijoIzq;
         }
 
@@ -92,8 +106,20 @@ static void hundir(pmonticulo m, int i) {
     } while (j != i);  // Terminamos cuando el nodo alcanza su posición final
 }
 
+void crearMonticulo(pmonticulo m, int v[], int n) {
+    for (int i = 0; i < n; i++) {
+        m->vector[i] = v[i];
+    }
+    m->ultimo = n-1;
+
+    //Construímos montículo desde el nodo hoja
+    for (int i = m->ultimo/2; i >= 0; i--) {
+        hundir(m,i);
+    }
+
+}
+
 void iniMonticulo(pmonticulo *m) {
-    *m = malloc(sizeof(struct monticulo));
     if (*m == NULL) {
         fprintf(stderr, "Error al asignar memoria para el montículo.\n");
         exit(EXIT_FAILURE);
@@ -152,35 +178,19 @@ int consultarMenor(const pmonticulo m) {
     return m->vector[0];
 }
 
-
-void crearMonticulo(pmonticulo m, int v[], int n) {
-    for (int i = 0; i < n; i++) {
-        m->vector[i] = v[i];
-    }
-    m->ultimo = n-1;
-
-    //Construímos montículo desde el nodo hoja
-    for (int i = m->ultimo/2; i >= 0; i--) {
-        hundir(m,i);
-    }
-
-}
-
 // Ordena un array usando el algoritmo de montículos
 void ordenarPorMonticulos(int v[], int n) {
-    int i;
-    pmonticulo m;
-    iniMonticulo(&m);           // Inicializa el montículo
-    crearMonticulo(m, v, n);    // Construye el montículo con el array `v`
+    pmonticulo m = malloc(sizeof(struct monticulo)); // Crear el montículo dinámicamente
+    iniMonticulo(&m);  // Inicializar el montículo
+    crearMonticulo(m, v, n); // Construir el montículo con los elementos del array
 
-    for (i = n-1; i >=0; i--) {
-        v[i] = consultarMenor(m); // Obtiene el menor elemento (raíz del montículo)
-        quitarMenor(m);           // Elimina la raíz y ajusta el montículo
+    for (int i = 0; i < n; i++) { // Iterar sobre todos los elementos del array
+        v[i] = consultarMenor(m); // Asignar el menor elemento del montículo al array
+        quitarMenor(m);           // Eliminar el menor elemento del montículo
     }
 
-    free(m); // Libera la memoria asignada al montículo
+    free(m);
 }
-
 
 void inicializar_semilla() {
     srand(time(NULL));
@@ -207,15 +217,10 @@ void descendente(int v [], int n) {
 void imprimirArray(const int v[], int n) {
     int i;
     for (i = 0; i < n; i++) {
-        if (i == n - 1) {
-            printf("%d", v[i]);  // Último elemento sin coma
-        } else {
-            printf("%d, ", v[i]);  // Elementos anteriores con coma
-        }
+        printf("%d ", v[i]);
     }
     printf("\n");
 }
-
 
 // Verifica si un array está ordenado
 int comprobarOrdenacion(const int v[], int n) {
@@ -229,7 +234,7 @@ int comprobarOrdenacion(const int v[], int n) {
 }
 
 // Función para realizar la ordenación y mostrar resultados
-void ordenacion(void (inicializacion)(int[], int), void (algoritmo)(int[], int), const int n, int v[n]) {
+void ordenacion(void (inicializacion)(int[], int), void (algoritmo)(int[], int), int n, int v[n]) {
     inicializacion(v, n);
     imprimirArray(v, n);
     printf("Ordenado? %d\n", comprobarOrdenacion(v, n));
@@ -239,7 +244,7 @@ void ordenacion(void (inicializacion)(int[], int), void (algoritmo)(int[], int),
     printf("Ordenado? %d\n\n", comprobarOrdenacion(v, n));
 }
 
-void imprimir_test(const int n, int v[n], void (algoritmo)(int[], int), char nombre_algoritmo[]) {
+void imprimir_test(int n, int v[n], void (algoritmo)(int[], int), char nombre_algoritmo[]) {
     printf("Ordenacion %s con inicializacion aleatoria\n", nombre_algoritmo);
     ordenacion(aleatorio, algoritmo, n, v);
     printf("Ordenacion %s con inicializacion descendente\n", nombre_algoritmo);
@@ -248,14 +253,13 @@ void imprimir_test(const int n, int v[n], void (algoritmo)(int[], int), char nom
     ordenacion(ascendente, algoritmo, n, v);
 }
 
-
-
 void test() {
-    inicializar_semilla();
     int n = 10;
     int v[n];
+    inicializar_semilla();
     imprimir_test(n, v, ordenarPorMonticulos, "por monticulos");
 }
+
 
 // Mide el tiempo en microsegundos
 double microsegundos() {
@@ -265,19 +269,94 @@ double microsegundos() {
     return (t.tv_usec + t.tv_sec * 1000000.0);
 }
 
+//Mide el tiempo de ejecución
+double medirTiempoInsertar(void (*inicialización)(int*,int), const int n, bool *promedio) {
+    double t1, t2, t, tTotal,tInicializacion;
+    int i, j, k = 1000, v[n];                       //Error: En vez de poner el tamaño máximo que voy a tratar es mejor poner n
+    pmonticulo m;
+    m = malloc(sizeof(struct monticulo));
+
+    iniMonticulo(&m);
+    inicialización(v,n);
+    t1 = microsegundos();
+    for (i = 0; i < n; i++) {
+        insertarMonticulo(m,v[i]);
+    }
+    t2 = microsegundos();
+    t = t2 - t1;
+
+    //Si el tiempo es menor que 500 microsegundos
+    if (t < 500) {
+        t1 = microsegundos();           // Mide el tiempo total (inicialización + ejecución)
+        for (i = 0; i < k; i++) {
+            iniMonticulo(&m);
+            inicialización(v,n);
+            for (j = 0; j < n; j++) {
+                insertarMonticulo(m,v[j]);
+            }
+        }
+        t2 = microsegundos();
+        tTotal = t2 - t1;
+
+        t1 = microsegundos();           // Mide solo el tiempo de la inicialización
+        for (i = 0; i < k; i++) {
+            iniMonticulo(&m);
+            inicialización(v,n);
+        }
+        t2 = microsegundos();
+        tInicializacion = t2 - t1;
+        t = (tTotal - tInicializacion) / k;
+        *promedio = true; //Indica que se realizó un promedio
+    }
+    free(m);
+    return t;
+}
 
 
 //Mide el tiempo de ejecución
-double medirTiempo(void (*inicializacion)(int*, int), int n, bool *promedio) {
-    double t1, t2, t, tTotal, tInicializacion;
-    int j, k = 1000;
-    int *v = malloc(n * sizeof(int));  // Array de tamaño n
+double medirTiempoCrear(void (*inicialización)(int*,int) , const int n, bool *promedio) {
+    double t1, t2, t, tTotal,tInicializacion;
+    int i, k = 1000, v[n];                       //Error: En vez de poner el tamaño máximo que voy a tratar es mejor poner n
+    pmonticulo m;
+    m = malloc(sizeof(struct monticulo));
 
+    iniMonticulo(&m);
+    inicialización(v,n);
+    t1 = microsegundos();
+    crearMonticulo(m,v, n);
+    t2 = microsegundos();
+    t = t2 - t1;
 
-    // Inicializar el array si se proporciona una función de inicialización
-    if (inicializacion != NULL) {
-        inicializacion(v, n);
+    //Si el tiempo es menor que 500 microsegundos
+    if (t < 500) {
+        t1 = microsegundos();           // Mide el tiempo total (inicialización + ejecución)
+        for (i = 0; i < k; i++) {
+            inicialización(v,n);
+            crearMonticulo(m,v, n);
+        }
+        t2 = microsegundos();
+        tTotal = t2 - t1;
+
+        t1 = microsegundos();           // Mide solo el tiempo de la inicialización
+        for (i = 0; i < k; i++) {
+            inicialización(v,n);
+        }
+        t2 = microsegundos();
+        tInicializacion = t2 - t1;
+        t = (tTotal - tInicializacion) / k;
+        *promedio = true; //Indica que se realizó un promedio
     }
+    free(m);
+    return t;
+}
+
+//Mide el tiempo de ejecución
+double medirTiempoOrdenacionPorMonticulas(void (*inicializacion)(int*, int), int n, bool *promedio) {
+    double t1, t2, t, tTotal, tInicializacion;
+    int j, k = 1000, v[n];
+
+    // Inicializar con la función de inicialización
+    inicializacion(v, n);
 
     // Medir tiempo de ejecución del algoritmo
     t1 = microsegundos();
@@ -287,20 +366,147 @@ double medirTiempo(void (*inicializacion)(int*, int), int n, bool *promedio) {
 
     // Si el tiempo es menor que 500 microsegundos
     if (t < 500) {
-        t1 = microsegundos();  // Medir tiempo con promediado
+        t1 = microsegundos();               // Mide el tiempo total (inicialización + ejecución)
         for (j = 0; j < k; j++) {
-            if (inicializacion != NULL) {
-                inicializacion(v, n);  // Reinicializar array antes de cada ejecución
-            }
+            inicializacion(v, n);
             ordenarPorMonticulos(v, n);
         }
         t2 = microsegundos();
+        tTotal = t2 - t1;
+
+        t1 = microsegundos();               // Mide solo el tiempo de la inicialización
+        for (j = 0; j < k; j++) {
+            inicializacion(v,n);
+        }
+        t2 = microsegundos();
+
         tInicializacion = t2 - t1;
         t = (tTotal - tInicializacion) / k;
         *promedio = true; //Indica que se realizó un promedio
-    }else {
-        *promedio = false;  // No se utilizó promedio
     }
-    free(v);
     return t;
 }
+
+// Función para imprimir el encabezado de las tablas
+void imprimirEncabezado(const char *nombreTabla, Cotas *cotas,int tipo) {
+    printf("\n%s\n", nombreTabla);
+    if (tipo == 1) {
+        // Imprimir los encabezados de la tabla directamente
+        printf("\n%13s%16s%17s%s%18s%s%19s%s\n",
+               "n",
+               "t(n)",
+               "t(n)/" ,cotas->strCotaSubestimada,
+               "t(n)/" ,cotas->strCotaAjustada,
+               "t(n)/" ,cotas->strCotaSobreestimada);
+    }else {
+        // Imprimir los encabezados de la tabla directamente
+        printf("\n%13s%16s%13s%s%11s%s%12s%s\n",
+               "n",
+               "t(n)",
+               "t(n)/" ,cotas->strCotaSubestimada,
+               "t(n)/" ,cotas->strCotaAjustada,
+               "t(n)/" ,cotas->strCotaSobreestimada);
+    }
+
+}
+
+
+// Función para imprimir una fila de la tabla
+void imprimirFila(int n, double t, double x, double y, double z, bool promedio) {
+    if (promedio) {
+        printf("*");    //Marca si se hizo un promedio
+    } else {
+        printf(" ");    //Marca si no se hizo un promedio, para mantener la alineación
+    }
+    printf("%12d%17.4f%20.6f%25.7f%25.7f\n", n, t, x, y, z);
+}
+
+//Devuelve la cota subestimada para el algoritmo correspondiente
+double cotaSubestimada(int n, int tipo, Cotas *cotas) {
+    switch (tipo) {
+        case 1:
+            return n * pow(log2(n), cotas->cotaSubestimada);
+        case 2:
+            return pow(n,cotas->cotaSubestimada);
+        default:
+            return 1.0; //Valor por defecto
+    }
+}
+
+//Devuelve la cota ajustada para el algoritmo correspondiente
+double cotaAjustada(int n, int tipo, Cotas *cotas) {
+    switch (tipo) {
+        case 1:
+            return n * pow(log2(n), cotas->cotaAjustada);
+        case 2:
+            return pow(n,cotas->cotaAjustada);
+        default:
+            return 1.0; //Valor por defecto
+    }
+}
+
+double cotaSobreestimada(int n, int tipo, Cotas *cotas) {
+    switch (tipo) {
+        case 1:
+            return n * pow(log2(n), cotas->cotaSobreestimada);
+        case 2:
+            return pow(n,cotas->cotaSobreestimada);
+        default:
+            return 1.0; //Valor por defecto
+    }
+}
+
+//Imprime los tiempos de ejecución de la función dada
+void imprimirTiempos(double(*funcTiempos)(void (*inicialización)(int*,int), int, bool*),
+                    void (*inicialización)(int*,int), Cotas *cotas,int tipo) {
+    int i;
+    double t, x, y, z;
+    bool promedio;
+
+    for (i = 1000; i <= 64000; i*= 2) {
+        promedio = false;           //Indica si se calcula el promedio
+        t = funcTiempos(inicialización, i, &promedio);
+        x = t / cotaSubestimada(i, tipo, cotas);
+        y = t / cotaAjustada(i, tipo, cotas);
+        z = t / cotaSobreestimada(i, tipo, cotas);
+
+        imprimirFila(i,t,x,y,z,promedio);
+    }
+}
+
+// Imprime las tablas de tiempos para los diferentes algoritmos de ordenación
+void imprimirTablas() {
+    Cotas cotas;
+
+    //Inserción de n elementos
+    cotas = (Cotas){0.687, 0.987, 1.387, "n*log(n)^0.687",
+        "n*log(n)^0.987", "n*log(n)^1.387"};
+    imprimirEncabezado("Inserción de n elementos", &cotas,2);
+    imprimirTiempos(medirTiempoInsertar,descendente, &cotas,1);
+
+    //Crear montículo
+    cotas = (Cotas){0.78, 0.99, 1.18, "n^0.787",
+        "n^0.987", "n^1.187"};
+    imprimirEncabezado("Creación de montículo", &cotas,1);
+    imprimirTiempos(medirTiempoCrear, descendente, &cotas,2);
+
+    //Ordenación por montículos, teórica es n*log(n) incluso en el peor caso
+    //Caso ascendente
+    cotas = (Cotas){0.587, 0.987, 1.487, "n*log(n)^0.687",
+        "n*log(n)^0.987", "n*log(n)^1.387"};
+    imprimirEncabezado("Ordenación por montículos con inicialización ascendente", &cotas,2);
+    imprimirTiempos(medirTiempoOrdenacionPorMonticulas, ascendente, &cotas,1);
+
+    //Caso descendente
+    cotas = (Cotas){0.587, 0.987, 1.487, "n*log(n)^0.687",
+        "n*log(n)^0.987", "n*log(n)^1.387"};
+    imprimirEncabezado("Ordenación por montículos con inicialización descendente", &cotas,2);
+    imprimirTiempos(medirTiempoOrdenacionPorMonticulas, descendente, &cotas,1);
+
+    //Caso aleatorio
+    cotas = (Cotas){0.587, 0.987, 1.487, "n*log(n)^0.687",
+        "n*log(n)^0.987", "n*log(n)^1.387"};
+    imprimirEncabezado("Ordenación por montículos con inicialización aleatoria", &cotas,2);
+    imprimirTiempos(medirTiempoOrdenacionPorMonticulas, aleatorio, &cotas,1);
+}
+
