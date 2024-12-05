@@ -256,3 +256,51 @@ void test() {
     int v[n];
     imprimir_test(n, v, ordenarPorMonticulos, "por monticulos");
 }
+
+// Mide el tiempo en microsegundos
+double microsegundos() {
+    struct timeval t;
+    if (gettimeofday(&t, NULL) < 0)
+        return 0.0;
+    return (t.tv_usec + t.tv_sec * 1000000.0);
+}
+
+
+
+//Mide el tiempo de ejecución
+double medirTiempo(void (*inicializacion)(int*, int), int n, bool *promedio) {
+    double t1, t2, t, tTotal, tInicializacion;
+    int j, k = 1000;
+    int *v = malloc(n * sizeof(int));  // Array de tamaño n
+
+
+    // Inicializar el array si se proporciona una función de inicialización
+    if (inicializacion != NULL) {
+        inicializacion(v, n);
+    }
+
+    // Medir tiempo de ejecución del algoritmo
+    t1 = microsegundos();
+    ordenarPorMonticulos(v, n);
+    t2 = microsegundos();
+    t = t2 - t1;
+
+    // Si el tiempo es menor que 500 microsegundos
+    if (t < 500) {
+        t1 = microsegundos();  // Medir tiempo con promediado
+        for (j = 0; j < k; j++) {
+            if (inicializacion != NULL) {
+                inicializacion(v, n);  // Reinicializar array antes de cada ejecución
+            }
+            ordenarPorMonticulos(v, n);
+        }
+        t2 = microsegundos();
+        tInicializacion = t2 - t1;
+        t = (tTotal - tInicializacion) / k;
+        *promedio = true; //Indica que se realizó un promedio
+    }else {
+        *promedio = false;  // No se utilizó promedio
+    }
+    free(v);
+    return t;
+}
