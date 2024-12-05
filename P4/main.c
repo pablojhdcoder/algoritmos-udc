@@ -168,19 +168,19 @@ void crearMonticulo(pmonticulo m, int v[], int n) {
 
 // Ordena un array usando el algoritmo de montículos
 void ordenarPorMonticulos(int v[], int n) {
+    int i;
     pmonticulo m;
-    iniMonticulo(&m);
-    crearMonticulo(m, v, n);
+    iniMonticulo(&m);           // Inicializa el montículo
+    crearMonticulo(m, v, n);    // Construye el montículo con el array `v`
 
-    for (int i = n - 1; i >= 0; i--) {
-        v[i] = consultarMenor(m);
-        intercambiar(m, 0, m->ultimo); // Llevar el mínimo al final
-        m->ultimo--;                   // Reducir el tamaño efectivo
-        hundir(m, 0);                  // Restaurar la propiedad del montículo
+    for (i = n-1; i >=0; i--) {
+        v[i] = consultarMenor(m); // Obtiene el menor elemento (raíz del montículo)
+        quitarMenor(m);           // Elimina la raíz y ajusta el montículo
     }
 
-    free(m);
+    free(m); // Libera la memoria asignada al montículo
 }
+
 
 void inicializar_semilla() {
     srand(time(NULL));
@@ -207,10 +207,15 @@ void descendente(int v [], int n) {
 void imprimirArray(const int v[], int n) {
     int i;
     for (i = 0; i < n; i++) {
-        printf("%d ", v[i]);
+        if (i == n - 1) {
+            printf("%d", v[i]);  // Último elemento sin coma
+        } else {
+            printf("%d, ", v[i]);  // Elementos anteriores con coma
+        }
     }
     printf("\n");
 }
+
 
 // Verifica si un array está ordenado
 int comprobarOrdenacion(const int v[], int n) {
@@ -224,7 +229,7 @@ int comprobarOrdenacion(const int v[], int n) {
 }
 
 // Función para realizar la ordenación y mostrar resultados
-void ordenacion(void (inicializacion)(int[], int), void (algoritmo)(int[], int), int n, int v[n]) {
+void ordenacion(void (inicializacion)(int[], int), void (algoritmo)(int[], int), const int n, int v[n]) {
     inicializacion(v, n);
     imprimirArray(v, n);
     printf("Ordenado? %d\n", comprobarOrdenacion(v, n));
@@ -234,7 +239,7 @@ void ordenacion(void (inicializacion)(int[], int), void (algoritmo)(int[], int),
     printf("Ordenado? %d\n\n", comprobarOrdenacion(v, n));
 }
 
-void imprimir_test(int n, int v[n], void (algoritmo)(int[], int), char nombre_algoritmo[]) {
+void imprimir_test(const int n, int v[n], void (algoritmo)(int[], int), char nombre_algoritmo[]) {
     printf("Ordenacion %s con inicializacion aleatoria\n", nombre_algoritmo);
     ordenacion(aleatorio, algoritmo, n, v);
     printf("Ordenacion %s con inicializacion descendente\n", nombre_algoritmo);
@@ -242,6 +247,8 @@ void imprimir_test(int n, int v[n], void (algoritmo)(int[], int), char nombre_al
     printf("Ordenacion %s con inicializacion ascendente\n", nombre_algoritmo);
     ordenacion(ascendente, algoritmo, n, v);
 }
+
+
 
 void test() {
     inicializar_semilla();
