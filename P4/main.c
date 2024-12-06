@@ -478,35 +478,22 @@ void imprimirTiempos(double(*funcTiempos)(void (*inicialización)(int*,int), int
 void imprimirTablas() {
     Cotas cotas;
 
-    //Inserción de n elementos
-    cotas = (Cotas){0.687, 0.987, 1.387, "n*log(n)^0.687",
-        "n*log(n)^0.987", "n*log(n)^1.387"};
-    imprimirEncabezado("Inserción de n elementos", &cotas,2);
-    imprimirTiempos(medirTiempoInsertar,descendente, &cotas,1);
-
-    //Crear montículo
-    cotas = (Cotas){0.78, 0.99, 1.18, "n^0.787",
-        "n^0.987", "n^1.187"};
-    imprimirEncabezado("Creación de montículo", &cotas,1);
-    imprimirTiempos(medirTiempoCrear, descendente, &cotas,2);
-
     //Ordenación por montículos, teórica es n*log(n) incluso en el peor caso
     //Caso ascendente
-    cotas = (Cotas){0.587, 0.987, 1.487, "n*log(n)^0.687",
+    cotas = (Cotas){0.587, 0.987, 1.387, "n*log(n)^0.587",
         "n*log(n)^0.987", "n*log(n)^1.387"};
     imprimirEncabezado("Ordenación por montículos con inicialización ascendente", &cotas,2);
     imprimirTiempos(medirTiempoOrdenacionPorMonticulas, ascendente, &cotas,1);
 
     //Caso descendente
     cotas = (Cotas){0.587, 0.987, 1.487, "n*log(n)^0.687",
-        "n*log(n)^0.987", "n*log(n)^1.387"};
+        "n*log(n)^0.987", "n*log(n)^1.487"};
     imprimirEncabezado("Ordenación por montículos con inicialización descendente", &cotas,2);
     imprimirTiempos(medirTiempoOrdenacionPorMonticulas, descendente, &cotas,1);
 
     //Caso aleatorio
     cotas = (Cotas){0.587, 0.987, 1.487, "n*log(n)^0.687",
-        "n*log(n)^0.987", "n*log(n)^1.387"};
+        "n*log(n)^0.987", "n*log(n)^1.487"};
     imprimirEncabezado("Ordenación por montículos con inicialización aleatoria", &cotas,2);
     imprimirTiempos(medirTiempoOrdenacionPorMonticulas, aleatorio, &cotas,1);
 }
-
