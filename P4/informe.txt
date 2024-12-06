@@ -26,7 +26,7 @@ vector desordenado aleatoriamente.
 Para cada caso, se miden y comparan los tiempos de ejecución de ambas situaciones, permitiendo
 así evaluar su eficiencia.
 
-****MAQUINA*******
+*****MAQUINA******
 ------------------
 
 Procesador: AMD Ryzen™ 7 5000 
