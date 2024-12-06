@@ -9,7 +9,7 @@ Pablo Jesús Herrero Díaz
 Tiago Da Costa Teixeira Veloso e Volta
 
 
-******MONTÍCULOS******
+*****MONTÍCULOS*****
 --------------------------------------------
 
 ****INTRODUCCION****
@@ -26,7 +26,7 @@ vector desordenado aleatoriamente.
 Para cada caso, se miden y comparan los tiempos de ejecución de ambas situaciones, permitiendo
 así evaluar su eficiencia.
 
-*****MAQUINA******
+****MAQUINA****
 ------------------
 
 Procesador: AMD Ryzen™ 7 5000 
@@ -45,6 +45,31 @@ Para garantizar la precisión de las mediciones, se estableció un umbral de con
 500 microsegundos. Si el tiempo de ejecución es menor a este valor el algoritmo se repite
 k veces (k= 1000) y se obtiene el promedio dividiendo el tiempo total entre las ejecuciones.
 Los casos donde se aplicó este procedimiento están marcados con un asterisco en las tablas.
+
+
+*****DEMONSTRACION EMPIRICA*****
+--------------------------------
+Inserción de n elementos
+
+            n            t(n)        t(n)/n*log(n)^0.687      t(n)/n*log(n)^0.987       t(n)/n*log(n)^1.387
+*        1000          48.6910            0.010034                0.0050341                0.0020068
+*        2000         102.0680            0.009848                0.0048011                0.0018421
+*        4000         214.7280            0.009756                0.0046334                0.0017168
+*        8000         468.9660            0.010082                0.0046743                0.0016773
+        16000        1030.0000            0.010521                0.0047702                0.0016615
+        32000        2241.0000            0.010914                0.0048470                0.0016422
+        64000        4748.0000            0.011060                0.0048171                0.0015904
+
+Creación de montículo
+
+            n            t(n)            t(n)/n^0.787            t(n)/n^0.987             t(n)/n^1.187
+*        1000           9.6510            0.044114                0.0103412                0.0027834
+*        2000          19.3970            0.051633                0.0104644                0.0024690
+*        4000          39.5970            0.061384                0.0107553                0.0022245
+*        8000          79.2580            0.071554                0.0108389                0.0019652
+*       16000         160.6080            0.084441                0.0110583                0.0017575
+*       32000         317.2400            0.097134                0.0109974                0.0015322
+        64000         629.0000            0.112158                0.0109782                0.0013408
 
 
 ******TEST******
@@ -129,9 +154,11 @@ n^1.487*log(n) es la cota sobreestimada
 ****CONCLUSIONES****
 --------------------
 
-Basándonos en los datos y los tiempos obtenidos de las pruebas efectuadas, podemos concluir que:
+Basándonos en los datos y los tiempos obtenidos de las pruebas efectuadas, podemos concluir:
 
-Crecimiento de los tiempos: La complejidad de crear un montículo es O(n), ya que la creación del montículo depende de la cantidad de elementos a insertar. Observamos que los tiempos de ejecución para los diferentes tamaños de vectores aumentan conforme se dobla el tamaño del vector, lo que es consistente con una complejidad lineal.
+Inserción de n elementos: El tiempo de ejecución crece proporcionalmente a O(nlogn), lo cual es esperado, ya que cada inserción implica un reordenamiento parcial del montículo utilizando la operación de "flotar". 
+
+Creación de un montículo: Crear un montículo a partir de un vector desordenado tiene una complejidad O(n), y esto se refleja en los tiempos de ejecución, que crecen de forma lineal con respecto al tamaño del vector.
 
 Calculando la complejidad empirica del algoritmo de ordenacion para tres situaciones distintas (vector ordenado ascendentemente, descendentemente y desordenado), podemos verificar que:
  
@@ -142,6 +169,12 @@ Calculando la complejidad empirica del algoritmo de ordenacion para tres situaci
  Cuando el vector esta desordenado - En este caso, los tiempos de ejecución aumentan ligeramente, pero en general siguen el mismo patrón que en los casos anteriores. El algoritmo de ordenación por montículos maneja vectores desordenados de forma eficiente, aunque parece que, en comparación con los otros dos casos, los tiempos de ejecución son ligeramente mayores.
  
 Conclusión general: En general, el algoritmo de ordenación por montículos se comporta de manera eficiente en las tres situaciones evaluadas. Los tiempos de ejecución crecen de manera lineal conforme aumentan los tamaños de los vectores, lo que indica que la complejidad del algoritmo es aproximadamente O(nlog⁡n). 
+
+Comparacion con los algoritmos de las praticas anteriores: Montículos destacan en problemas con acceso continuo al mínimo/máximo o en algoritmos específicos.
+Fibonacci es específico para la generación de la secuencia homónima y no compite directamente con los montículos en generalidad.
+Ordenación por inserción es subóptima frente a montículos y otros algoritmos avanzados para entradas grandes.
+Ordenación rápida es competidor directo en eficiencia, con diferentes ventajas según el caso.
+Algoritmos de dispersión son más rápidos en acceso directo pero carecen de propiedades ordenadas como los montículos.
  
 Anomalias: Durante las pruebas, se observaron algunos resultados anómalos en los tiempos de ejecución, particularmente en las tablas de dispersión cerrada con dispersión B.
 Estos valores atípicos podrían ser producto de factores como la interferencia de otros procesos del sistema durante la ejecución. Sin embargo, tras realizar múltiples
