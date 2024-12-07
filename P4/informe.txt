@@ -176,6 +176,6 @@ Ordenación por inserción es subóptima frente a montículos y otros algoritmos
 Ordenación rápida es competidor directo en eficiencia, con diferentes ventajas según el caso.
 Algoritmos de dispersión son más rápidos en acceso directo pero carecen de propiedades ordenadas como los montículos.
  
-Anomalias: Durante las pruebas, se observaron algunos resultados anómalos en los tiempos de ejecución, particularmente en las tablas de dispersión cerrada con dispersión B.
+Anomalias: Durante las pruebas, se observaron algunos resultados anómalos en los tiempos de ejecución.
 Estos valores atípicos podrían ser producto de factores como la interferencia de otros procesos del sistema durante la ejecución. Sin embargo, tras realizar múltiples
 repeticiones y aplicar un análisis estadístico, se encontró que estos puntos no eran representativos del comportamiento general del algoritmo y fueron excluidos del análisis final.
