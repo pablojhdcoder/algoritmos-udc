@@ -333,29 +333,65 @@ void test_insertarMonticulo() {
 }
 
 //Verificar la eliminación del menor
+//Verificar la eliminación del menor
 void test_quitarMenor() {
+    printf("\nTest de QuitarMenor\n\n");
     pmonticulo m = malloc(sizeof(struct monticulo));
     if (m == NULL) {
         fprintf(stderr, "Error al asignar memoria para el montículo\n");
         exit(EXIT_FAILURE);
     }
     iniMonticulo(&m);
-    //Utilizar crearMonticulo y luego testear quitarmenor
+
+    int v[] = {20, 5, 15, 30, 10};
+    crearMonticulo(m, v, 5);
+
+    printf("Montículo inicial:\n");
+    imprimirMonticulo(m);
+
+    // Quitar el menor (5)
+    quitarMenor(m);
+    printf("Después de quitar el menor:\n");
+    imprimirMonticulo(m);
+
+    int menor = consultarMenor(m);
+    if (menor != 10) { // Se espera que ahora el menor sea 10
+        fprintf(stderr, "Error en quitarMenor: se esperaba 10, pero se obtuvo %d\n", menor);
+    } else {
+        printf("Test quitarMenor pasó\n");
+    }
+
+    // Verificar estado del montículo
+    if (!esMonticuloMinimos(m)) {
+        fprintf(stderr, "Error: el montículo no cumple la propiedad de mínimo tras quitarMenor\n");
+    }
 
     free(m);
 }
 
 //Verificar la consulta del menor
 void test_consultarMenor() {
+    printf("\nTest de ConsultarMenor\n\n");
     pmonticulo m = malloc(sizeof(struct monticulo));
     if (m == NULL) {
         fprintf(stderr, "Error al asignar memoria para el montículo\n");
         exit(EXIT_FAILURE);
     }
     iniMonticulo(&m);
-    //Utilizar crearMonticulo y luego testear consultarmenor
 
+    int v[] = {20, 5, 15, 30, 10};
+    crearMonticulo(m, v, 5);
+
+    printf("Montículo inicial:\n");
+    imprimirMonticulo(m);
+    int menor = consultarMenor(m);
+    if (menor != 5) { // Se espera que el menor sea 5
+        fprintf(stderr, "Error en consultarMenor: se esperaba 5, pero se obtuvo %d\n", menor);
+    } else {
+        printf("Menor elemento: %d\n", menor);
+    }
     printf("Test consultarMenor pasó\n");
+
     free(m);
 }
 
@@ -363,8 +399,8 @@ void testOperaciones() {
     test_iniMonticulo();
     test_crearMonticulo();
     test_insertarMonticulo();
-    //test_quitarMenor();
-    //test_consultarMenor();
+    test_quitarMenor();
+    test_consultarMenor();
 }
 
 // Ordena un array usando el algoritmo de montículos
