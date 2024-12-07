@@ -9,7 +9,7 @@
 
 
 struct monticulo {
-    int ultimo;     //Ultimo celda ocupada del vector, ultimo = 1 => 2 nodos( pos 0 y 1) vacio -1 lleno 255999
+    int ultimo;     //Ultima celda ocupada del vector asociado al montículo
     int vector[TAM];
 };
 typedef struct monticulo * pmonticulo;
@@ -25,10 +25,10 @@ typedef struct {
 } Cotas;
 
 void iniMonticulo(pmonticulo *m);
-void insertarMonticulo(pmonticulo m, int x);    //Añade x al monticulo
+void insertarMonticulo(pmonticulo m, int x);
 void quitarMenor(pmonticulo m);
-int consultarMenor(const pmonticulo m);     //Que elemento ocupa la raíz
-void crearMonticulo(pmonticulo m, int v [], int n);     //Construye nuevo montículo a partir de v
+int consultarMenor(const pmonticulo m);
+void crearMonticulo(pmonticulo m, int v [], int n);
 void testOperaciones();
 void ordenarPorMonticulos(int v[], int n);
 void testOrdenarPorMonticulos();
@@ -41,24 +41,6 @@ void descendente(int v[], int n);
 void imprimirArray(const int v[], int n);
 
 void imprimirTablas();
-
-
-//implementar también hundir (en insertar) y flotar
-//diseñar test de prueba propio
-
-//Si indice del vector empieza en 1 => hijo izq = 2 * poso, hijo derecho = 2 * pos +1 y padre pos/2
-
-/*Recalcular pos tengo que pasar a empezar en 1
- * tengo que pasar a la escala de 1, 2, ..
- * hi (i) = 2 (i+1) -1 = 2i +2 -1 = 2i+1
- * hd (i) = 2i +2
- * pad (i) = 1+1/2 -1 = 1+1-2/2 = i-1/2
- */
-
-//Demostrar que añadir n numeros tiene nlogn es decir insertar n veces x número
-
-//Punto 4, comparar los resultados con los implementados en la práctica 2.
-
 
 
 int main(void) {
@@ -77,8 +59,8 @@ static void intercambiar (pmonticulo m, int pos1, int pos2) {
 
 static void flotar(pmonticulo m, int i) {
     while (i > 0 && m->vector[(i - 1) / 2] > m->vector[i]) {
-        intercambiar(m, (i - 1) / 2, i);                // Intercambiamos el nodo actual con su padre
-        i = (i - 1) / 2;                // Subimos al índice del padre
+        intercambiar(m, (i - 1) / 2, i);
+        i = (i - 1) / 2;
     }
 }
 
@@ -127,6 +109,7 @@ void iniMonticulo(pmonticulo *m) {
 
 // Inserta un elemento `x` en el montículo `m`, manteniendo la propiedad de mínimo.
 void insertarMonticulo(pmonticulo m, int x) {
+
     // Verificamos si el montículo está lleno
     if (m->ultimo == TAM - 1) {
         printf("Montículo lleno\n");
@@ -161,7 +144,6 @@ void quitarMenor(pmonticulo m) {
     if (m->ultimo >= 0) {
         m->vector[0] = ultimo;  // Colocamos el último elemento en la raíz
 
-        // Ajustamos el montículo para restaurar la propiedad de mínimo
         hundir(m, 0);  // Llamamos a la función hundir para restaurar el montículo
     }
 
@@ -170,7 +152,7 @@ void quitarMenor(pmonticulo m) {
 int consultarMenor(const pmonticulo m) {
     if (m->ultimo == -1) {
         printf("El montículo está vacío.\n");
-        return -1; // Se podría elegir un valor especial o generar un error
+        return -1;
     }
     // El menor elemento está siempre en la raíz (posición 0)
     return m->vector[0];
@@ -230,7 +212,6 @@ bool esMonticuloMinimos(pmonticulo m) {
     return true;
 }
 
-// Función de comprobación para insertar
 bool comprobarCreacion(pmonticulo m, int v[], int n) {
     int i, j;
     bool encontrado;
@@ -259,7 +240,7 @@ bool comprobarCreacion(pmonticulo m, int v[], int n) {
     return true;
 }
 
-//Verificar la creación del montículo a partir de un arreglo
+//Verificar la creación del montículo a partir de un array
 void test_crearMonticulo() {
     printf("\nTest de crearMonticulo\n\n");
     pmonticulo m = malloc(sizeof(struct monticulo));
@@ -282,7 +263,6 @@ void test_crearMonticulo() {
     free(m);
 }
 
-// Función de comprobación para insertar
 bool comprobarInsercion(pmonticulo m, int insertado) {
     int i;
     if (m->ultimo < 0) {
@@ -332,82 +312,111 @@ void test_insertarMonticulo() {
     free(m);
 }
 
-//Verificar la eliminación del menor
-//Verificar la eliminación del menor
-void test_quitarMenor() {
-    printf("\nTest de QuitarMenor\n\n");
-    pmonticulo m = malloc(sizeof(struct monticulo));
-    if (m == NULL) {
-        fprintf(stderr, "Error al asignar memoria para el montículo\n");
-        exit(EXIT_FAILURE);
-    }
-    iniMonticulo(&m);
+bool comprobarConsultarMenor(pmonticulo m, int menor) {
 
-    int v[] = {20, 5, 15, 30, 10};
-    crearMonticulo(m, v, 5);
-
-    printf("Montículo inicial:\n");
-    imprimirMonticulo(m);
-
-    // Quitar el menor (5)
-    quitarMenor(m);
-    printf("Después de quitar el menor:\n");
-    imprimirMonticulo(m);
-
-    int menor = consultarMenor(m);
-    if (menor != 10) { // Se espera que ahora el menor sea 10
-        fprintf(stderr, "Error en quitarMenor: se esperaba 10, pero se obtuvo %d\n", menor);
-    } else {
-        printf("Test quitarMenor pasó\n");
+    // Verificar que el montículo no está vacío
+    if (m->ultimo < 0) {
+        return false;
     }
 
-    // Verificar estado del montículo
+    // Verificar estado de montículo de mínimos para asegurarnos que el menor estará en la primera posición del vector
     if (!esMonticuloMinimos(m)) {
-        fprintf(stderr, "Error: el montículo no cumple la propiedad de mínimo tras quitarMenor\n");
+        return false;
     }
 
-    free(m);
+    // Verificar que el menor elemento corresponde al valor consultado
+    if (m->vector[0] != menor) {
+        return false;
+    }
+
+    return true;
 }
 
 //Verificar la consulta del menor
 void test_consultarMenor() {
     printf("\nTest de ConsultarMenor\n\n");
     pmonticulo m = malloc(sizeof(struct monticulo));
+    int v[] = {20, 5, 15, 30, 10}, n = sizeof(v) / sizeof(v[0]), menor;
+
     if (m == NULL) {
         fprintf(stderr, "Error al asignar memoria para el montículo\n");
         exit(EXIT_FAILURE);
     }
     iniMonticulo(&m);
 
-    int v[] = {20, 5, 15, 30, 10};
-    crearMonticulo(m, v, 5);
+    crearMonticulo(m, v, n);
 
-    printf("Montículo inicial:\n");
     imprimirMonticulo(m);
-    int menor = consultarMenor(m);
-    if (menor != 5) { // Se espera que el menor sea 5
-        fprintf(stderr, "Error en consultarMenor: se esperaba 5, pero se obtuvo %d\n", menor);
-    } else {
-        printf("Menor elemento: %d\n", menor);
-    }
-    printf("Test consultarMenor pasó\n");
+    menor = consultarMenor(m);
+    printf("Menor elemento: %d\n", menor);
+    printf("Menor consultado correctamente? %d\n", comprobarConsultarMenor(m, menor));
 
     free(m);
 }
+
+bool comprobarQuitarMenor(pmonticulo m, int menorAnterior) {
+    int menorActual = consultarMenor(m);
+
+    // Verificar estado de montículo de mínimos para asegurarnos que el menor estará en la primera posición del vector
+    if (!esMonticuloMinimos(m)) {
+        return false;
+    }
+
+    // Verificar que el nuevo menor es mayor o igual al anterior
+    if (menorActual < menorAnterior) { // Se espera que ahora el menor sea 10
+        return false;
+    }
+
+
+    return true;
+}
+
+
+//Verificar la eliminación del menor
+void test_quitarMenor() {
+    printf("\nTest de QuitarMenor\n\n");
+    pmonticulo m = malloc(sizeof(struct monticulo));
+    int v[] = {20, 5, 15, 30, 10}, n = sizeof(v) / sizeof(v[0]), menorQuitado;
+
+    if (m == NULL) {
+        fprintf(stderr, "Error al asignar memoria para el montículo\n");
+        exit(EXIT_FAILURE);
+    }
+    iniMonticulo(&m);
+
+    crearMonticulo(m, v, n);
+
+    imprimirMonticulo(m);
+    menorQuitado = consultarMenor(m);
+    printf("Quitando menor...\n");
+    quitarMenor(m);
+    imprimirMonticulo(m);
+    printf("Menor quitado correctamente? %d\n\n", comprobarQuitarMenor(m, menorQuitado));
+
+    imprimirMonticulo(m);
+    menorQuitado = consultarMenor(m);
+    printf("Quitando menor...\n");
+    quitarMenor(m);
+    imprimirMonticulo(m);
+    printf("Menor quitado correctamente? %d\n", comprobarQuitarMenor(m, menorQuitado));
+
+    free(m);
+}
+
 
 void testOperaciones() {
     test_iniMonticulo();
     test_crearMonticulo();
     test_insertarMonticulo();
-    test_quitarMenor();
     test_consultarMenor();
+    test_quitarMenor();
 }
 
 // Ordena un array usando el algoritmo de montículos
 void ordenarPorMonticulos(int v[], int n) {
-    pmonticulo m = malloc(sizeof(struct monticulo)); // Crear el montículo dinámicamente
-    iniMonticulo(&m);  // Inicializar el montículo
-    crearMonticulo(m, v, n); // Construir el montículo con los elementos del array
+    pmonticulo m = malloc(sizeof(struct monticulo));
+    iniMonticulo(&m);           // Inicializar el montículo
+    crearMonticulo(m, v, n);    // Construir el montículo con los elementos del array
 
     for (int i = 0; i < n; i++) { // Iterar sobre todos los elementos del array
         v[i] = consultarMenor(m); // Asignar el menor elemento del montículo al array
@@ -495,7 +504,7 @@ double microsegundos() {
 //Mide el tiempo de ejecución
 double medirTiempoInsertar(void (*inicialización)(int*,int), const int n, bool *promedio) {
     double t1, t2, t, tTotal,tInicializacion;
-    int i, j, k = 1000, v[n];                       //Error: En vez de poner el tamaño máximo que voy a tratar es mejor poner n
+    int i, j, k = 1000, v[n];
     pmonticulo m = malloc(sizeof(struct monticulo));
     if (m == NULL) {
         fprintf(stderr, "Error al asignar memoria para el montículo\n");
@@ -542,7 +551,7 @@ double medirTiempoInsertar(void (*inicialización)(int*,int), const int n, bool 
 //Mide el tiempo de ejecución
 double medirTiempoCrear(void (*inicialización)(int*,int) , const int n, bool *promedio) {
     double t1, t2, t, tTotal,tInicializacion;
-    int i, k = 1000, v[n];                       //Error: En vez de poner el tamaño máximo que voy a tratar es mejor poner n
+    int i, k = 1000, v[n];
     pmonticulo m = malloc(sizeof(struct monticulo));
     if (m == NULL) {
         fprintf(stderr, "Error al asignar memoria para el montículo\n");
@@ -719,7 +728,7 @@ void imprimirTablas() {
     imprimirEncabezado("Creación de montículo", &cotas,1);
     imprimirTiempos(medirTiempoCrear, descendente, &cotas,2);
 
-    //Ordenación por montículos, teórica es n*log(n) incluso en el peor caso
+    //Ordenación por montículos
     //Caso ascendente
     cotas = (Cotas){0.587, 0.987, 1.487, "n*log(n)^0.687",
         "n*log(n)^0.987", "n*log(n)^1.387"};
